@@ -1,6 +1,6 @@
 {
   "name": "@variablelab/clibuddy",
-  "version": "0.7.4",
+  "version": "0.8.0",
   "description": "A helper library to create CLIs in Variable Land",
   "homepage": "https://github.com/withvariablelab/dx/tree/main/shared/clibuddy#readme",
   "bugs": {
