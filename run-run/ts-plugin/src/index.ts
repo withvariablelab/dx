@@ -53,7 +53,16 @@ const PRESETS: Record<Preset, PresetInfo> = {
   "no-dom-lib": { extendsPath: "@rrlab/ts-config/no-dom/lib", label: "Node.js library", needsNode: true },
 };
 
-const DEFAULT_PRESET: Preset = "no-dom-app";
+/**
+ * A package that depends on `react` (peer included, for a component library)
+ * gets the React preset; anything else, a Node.js app. It's the answer `--yes`
+ * and a run without a TTY take, and the one the prompt starts on.
+ */
+function defaultPreset(pkg: InstallContext["appPkg"]): Preset {
+  const { dependencies, devDependencies, peerDependencies } = pkg.packageJson;
+  const dependsOnReact = [dependencies, devDependencies, peerDependencies].some((deps) => !!deps && "react" in deps);
+  return dependsOnReact ? "react" : "no-dom-app";
+}
 
 export async function install(ctx: InstallContext): Promise<InstallResult> {
   const tsconfigPath = path.join(ctx.appPkg.dirPath, TSCONFIG);
@@ -71,7 +80,7 @@ export async function install(ctx: InstallContext): Promise<InstallResult> {
   const preset = await pickPreset(ctx, {
     message: "Which kind of TS project do you need?",
     presets: PRESETS,
-    defaultPreset: DEFAULT_PRESET,
+    defaultPreset: defaultPreset(ctx.appPkg),
   });
   const presetInfo = PRESETS[preset];
 

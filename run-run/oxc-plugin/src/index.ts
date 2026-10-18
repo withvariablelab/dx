@@ -27,7 +27,8 @@ export class OxlintService extends ToolService implements Linter {
   }
 
   async lint(options: LintOptions): Promise<RunReport> {
-    return this.runReport(["--report-unused-disable-directives", options.fix ? "--fix" : "--check"]);
+    // oxlint checks by default; it has no `--check` flag.
+    return this.runReport(["--report-unused-disable-directives", ...(options.fix ? ["--fix"] : [])]);
   }
 }
 
@@ -37,7 +38,7 @@ export class OxfmtService extends ToolService implements Formatter {
   }
 
   async format(options: FormatOptions): Promise<RunReport> {
-    return this.runReport(["--no-error-on-unmatched-pattern", options.fix ? "--fix" : "--check"]);
+    return this.runReport(["--no-error-on-unmatched-pattern", options.fix ? "--write" : "--check"]);
   }
 }
 

@@ -7,6 +7,10 @@ import { ConfigAstService } from "#src/services/config-ast.ts";
 
 const svc = new ConfigAstService();
 
+function importSources(code: string): string[] {
+  return [...code.matchAll(/^import .* from "(.+)";$/gm)].map((match) => match[1] ?? "");
+}
+
 const EMPTY_CONFIG = `import { defineConfig } from "@rrlab/cli/config";
 
 export default defineConfig({
@@ -76,6 +80,34 @@ describe("ConfigAstService", () => {
     });
   });
 
+  describe("addPlugin import order", () => {
+    it("puts each import where Biome's organizeImports wants it, in whatever order the plugins come", () => {
+      const mod = parseModule(EMPTY_CONFIG);
+      svc.addPlugin(mod, { exportName: "tsdown", pkgName: "@rrlab/tsdown-plugin" });
+      svc.addPlugin(mod, { exportName: "ts", pkgName: "@rrlab/ts-plugin" });
+      svc.addPlugin(mod, { exportName: "biome", pkgName: "@rrlab/biome-plugin" });
+      expect(importSources(generateCode(mod).code)).toEqual([
+        "@rrlab/biome-plugin",
+        "@rrlab/cli/config",
+        "@rrlab/ts-plugin",
+        "@rrlab/tsdown-plugin",
+      ]);
+    });
+
+    it("leaves the other imports in their order, and goes after a protocol import and before a path", () => {
+      const mod = parseModule(`import fs from "node:fs";
+import { defineConfig } from "@rrlab/cli/config";
+import local from "./local.ts";
+
+export default defineConfig({
+  plugins: [],
+});
+`);
+      svc.addPlugin(mod, { exportName: "ts", pkgName: "@rrlab/ts-plugin" });
+      expect(importSources(generateCode(mod).code)).toEqual(["node:fs", "@rrlab/cli/config", "@rrlab/ts-plugin", "./local.ts"]);
+    });
+  });
+
   describe("removePlugin", () => {
     it("removes the call and the import binding", () => {
       const mod = parseModule(TWO_PLUGINS_CONFIG);
@@ -127,6 +159,44 @@ describe("ConfigAstService", () => {
       expect(written).toContain(`import biome from "@rrlab/biome-plugin"`);
       expect(written).toContain(`import ts from "@rrlab/ts-plugin"`);
       expect(written).toMatch(/plugins:\s*\[\s*biome\(\),\s*ts\(\)\s*\]/);
+    });
+
+    it("keeps the imports together and sorted across separate `rr plugins add` runs", async () => {
+      const cfgPath = path.join(tmpDir, "run-run.config.mts");
+      await fs.writeFile(cfgPath, EMPTY_CONFIG, "utf8");
+      for (const [exportName, pkgName] of [
+        ["tsdown", "@rrlab/tsdown-plugin"],
+        ["ts", "@rrlab/ts-plugin"],
+        ["biome", "@rrlab/biome-plugin"],
+      ] as const) {
+        const loaded = await svc.load(tmpDir);
+        svc.addPlugin(loaded.mod, { exportName, pkgName });
+        await svc.save(loaded);
+      }
+
+      expect(await fs.readFile(cfgPath, "utf8")).toBe(`import biome from "@rrlab/biome-plugin";
+import { defineConfig } from "@rrlab/cli/config";
+import ts from "@rrlab/ts-plugin";
+import tsdown from "@rrlab/tsdown-plugin";
+
+export default defineConfig({
+  plugins: [tsdown(), ts(), biome()],
+});
+`);
+    });
+
+    it.each([
+      ["an existing config", ONE_PLUGIN_CONFIG],
+      ["a new config", undefined],
+    ])("ends %s with a newline", async (_label, existing) => {
+      const cfgPath = path.join(tmpDir, "run-run.config.mts");
+      if (existing) await fs.writeFile(cfgPath, existing, "utf8");
+
+      const loaded = await svc.load(tmpDir);
+      svc.addPlugin(loaded.mod, { exportName: "ts", pkgName: "@rrlab/ts-plugin" });
+      await svc.save(loaded);
+
+      expect(await fs.readFile(cfgPath, "utf8")).toMatch(/\}\);\n$/);
     });
 
     it("writes a brand-new minimal config when none existed and a plugin was added", async () => {

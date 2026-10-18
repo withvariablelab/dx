@@ -2,6 +2,15 @@ import * as clack from "@clack/prompts";
 import type { ClackPrompts } from "#src/lib/plugin/types.ts";
 
 /**
+ * Whether a prompt can run: clack reads keys from stdin and draws on stdout,
+ * so both have to be terminals. An agent, a script or CI usually has neither,
+ * and a prompt there waits forever or exits on a closed stdin.
+ */
+export function canPrompt(): boolean {
+  return !!process.stdin.isTTY && !!process.stdout.isTTY;
+}
+
+/**
  * Adapter that exposes the subset of `@clack/prompts` matching the
  * `ClackPrompts` contract from `@rrlab/cli/plugin`. The contract intentionally
  * stays narrow (`select`, `confirm`, `isCancel`) so plugin install hooks can

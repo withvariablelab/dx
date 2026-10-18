@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { builders, generateCode, loadFile, type ProxifiedModule, parseModule, writeFile } from "magicast";
+import { builders, generateCode, loadFile, type ProxifiedModule, parseModule } from "magicast";
 
 const CONFIG_FILENAMES = ["run-run.config.ts", "run-run.config.mts"] as const;
 
@@ -50,14 +50,7 @@ export class ConfigAstService {
   }
 
   async save(loaded: LoadedConfig): Promise<void> {
-    if (loaded.isNew) {
-      // For a fresh file, write the generated code instead of using
-      // `writeFile` — writeFile expects an existing file as a starting point.
-      const { code } = generateCode(loaded.mod);
-      await fs.writeFile(loaded.filepath, code, "utf8");
-      return;
-    }
-    await writeFile(loaded.mod.$ast, loaded.filepath);
+    await fs.writeFile(loaded.filepath, tidy(generateCode(loaded.mod).code), "utf8");
   }
 
   /**
@@ -84,6 +77,7 @@ export class ConfigAstService {
     // Ensure the import binding exists.
     if (!mod.imports[entry.exportName]) {
       mod.imports.$add({ from: entry.pkgName, imported: "default", local: entry.exportName });
+      this.#placeImport(mod, entry.pkgName);
     }
 
     // Ensure `defineConfig` import + default export shape.
@@ -151,9 +145,30 @@ export class ConfigAstService {
     return opts.plugins;
   }
 
+  /**
+   * Moves the import of `source`, which `imports.$add` puts first, to its
+   * sorted place among the other imports, leaving those in their order: a
+   * sorted file stays sorted, so `rr jsc` passes on what rr wrote.
+   */
+  #placeImport(mod: ProxifiedModule, source: string): void {
+    const program = mod.$ast;
+    if (program.type !== "Program") return;
+    const { body } = program;
+    const from = body.findIndex((node) => node.type === "ImportDeclaration" && node.source.value === source);
+    if (from === -1) return;
+    const [added] = body.splice(from, 1);
+    if (!added) return;
+    const before = body.findIndex(
+      (node) => node.type === "ImportDeclaration" && compareImportSources(node.source.value, source) > 0,
+    );
+    const lastImport = body.reduce((last, node, i) => (node.type === "ImportDeclaration" ? i : last), -1);
+    body.splice(before === -1 ? lastImport + 1 : before, 0, added);
+  }
+
   #ensureDefineConfig(mod: ProxifiedModule): void {
     if (!mod.imports.defineConfig) {
       mod.imports.$add({ from: "@rrlab/cli/config", imported: "defineConfig", local: "defineConfig" });
+      this.#placeImport(mod, "@rrlab/cli/config");
     }
     // biome-ignore lint/suspicious/noExplicitAny: magicast proxies are opaque
     const def = (mod.exports as any).default;
@@ -192,6 +207,32 @@ export class ConfigAstService {
     if (typeof callee === "string") return callee;
     return undefined;
   }
+}
+
+/**
+ * Undoes two recast habits that formatters reject: it keeps the blank line that
+ * followed an import when rr inserts another after it, and it drops the final
+ * newline.
+ */
+function tidy(code: string): string {
+  const joined = code.replace(/^(import\b[^;]*;)\n(?:[ \t]*\n)+(?=import\b)/gm, "$1\n");
+  return joined.endsWith("\n") ? joined : `${joined}\n`;
+}
+
+/**
+ * Biome's organizeImports order: protocol imports (`node:fs`), then packages,
+ * then aliases (`#src/…`, `@/…`, `~/…`), then paths. Within a group, plain
+ * code-unit order, which matches Biome for these names (`ts-plugin` before
+ * `tsdown-plugin`; `localeCompare` flips them).
+ */
+function compareImportSources(a: string, b: string): number {
+  const group = (source: string) => {
+    if (/^[a-z]+:/.test(source)) return 0;
+    if (/^(#|@\/|~)/.test(source)) return 2;
+    if (source.startsWith(".") || source.startsWith("/")) return 3;
+    return 1;
+  };
+  return group(a) - group(b) || (a < b ? -1 : a > b ? 1 : 0);
 }
 
 const MINIMAL_TEMPLATE = `import { defineConfig } from "@rrlab/cli/config";

@@ -10,7 +10,7 @@ import { ConfigAstService } from "#src/services/config-ast.ts";
 import type { ContextValue } from "#src/services/context.ts";
 import { applyFileOp } from "#src/services/file-ops.ts";
 import { logger } from "#src/services/logger.ts";
-import { createClackPrompts } from "#src/services/prompts.ts";
+import { canPrompt, createClackPrompts } from "#src/services/prompts.ts";
 import { ReleaseService } from "#src/services/release.ts";
 import { describeWorkspaceChoice, resolveWorkspaceChoice, toNypmWorkspace } from "#src/services/workspace-target.ts";
 import { type AddOptions, hasInPackageJson, type PluginModule, reportFileOp } from "./shared.ts";
@@ -104,7 +104,7 @@ export async function addPluginAction({ ctx, args, options }: AddPluginActionCon
         flags: {
           force: !!options.force,
           yes: !!options.yes,
-          nonInteractive: !!options.yes,
+          nonInteractive: !!options.yes || !canPrompt(),
         },
         release: new ReleaseService(tag),
       };

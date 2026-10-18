@@ -1,6 +1,7 @@
 import path from "node:path";
 import * as clack from "@clack/prompts";
 import { detectPackageManager, removeDependency } from "nypm";
+import { ConfirmationRequiredError } from "#src/errors/confirmation-required.ts";
 import { PLUGINS_DIRECTORY, type PluginName } from "#src/lib/plugin/directory.ts";
 import type { UninstallResult } from "#src/lib/plugin/types.ts";
 import { withSpinner } from "#src/render/steps.ts";
@@ -8,7 +9,7 @@ import { ConfigAstService } from "#src/services/config-ast.ts";
 import type { ContextValue } from "#src/services/context.ts";
 import { applyFileOp, describeFileOp } from "#src/services/file-ops.ts";
 import { logger } from "#src/services/logger.ts";
-import { createClackPrompts } from "#src/services/prompts.ts";
+import { canPrompt, createClackPrompts } from "#src/services/prompts.ts";
 import { describeWorkspaceChoice, resolveWorkspaceChoice, toNypmWorkspace } from "#src/services/workspace-target.ts";
 import { hasInPackageJson, type PluginModule, type RemoveOptions, reportFileOp } from "./shared.ts";
 
@@ -41,7 +42,7 @@ export async function removePluginAction({ ctx, args, options }: RemovePluginAct
           logger,
           appPkg: ctx.appPkg,
           prompts: createClackPrompts(),
-          flags: { yes: !!options.yes, nonInteractive: !!options.yes },
+          flags: { yes: !!options.yes, nonInteractive: !!options.yes || !canPrompt() },
         });
       }
     } catch (err) {
@@ -83,6 +84,8 @@ export async function removePluginAction({ ctx, args, options }: RemovePluginAct
   }
 
   if (!options.yes) {
+    // Removing deletes files and dependencies: without a terminal to confirm in, insist on --yes.
+    if (!canPrompt()) throw new ConfirmationRequiredError(`rr plugins remove ${name}`);
     const choice = await clack.confirm({ message: "Proceed?", initialValue: false });
     if (clack.isCancel(choice) || choice !== true) {
       clack.outro("Aborted.");

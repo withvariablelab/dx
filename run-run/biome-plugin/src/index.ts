@@ -25,7 +25,8 @@ const FROM = import.meta.url;
 const COMMON_FLAGS = ["--colors=force", "--no-errors-on-unmatched"];
 const BIOME_JSON = "biome.json";
 const BIOME_CONFIG_PKG = "@rrlab/biome-config";
-const BIOME_SCHEMA = "https://biomejs.dev/schemas/2.4.4/schema.json";
+// The installed Biome's own schema: a versioned URL drifts from `^2.0.0` and Biome flags the mismatch.
+const BIOME_SCHEMA = "./node_modules/@biomejs/biome/configuration_schema.json";
 
 export { TOOL_VERSIONS } from "./tool-versions.ts";
 
@@ -81,7 +82,8 @@ export async function install(ctx: InstallContext): Promise<InstallResult> {
       ? {
           kind: "create",
           path: BIOME_JSON,
-          content: `${JSON.stringify({ $schema: BIOME_SCHEMA, extends: [BIOME_CONFIG_PKG] }, null, 2)}\n`,
+          // In Biome's own format, which keeps a short array on one line, so `rr jsc` passes on it.
+          content: `{\n  "$schema": "${BIOME_SCHEMA}",\n  "extends": ["${BIOME_CONFIG_PKG}"]\n}\n`,
           overwrite: scaffoldDecision === "overwrite" || ctx.flags.force,
         }
       : {

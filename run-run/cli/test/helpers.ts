@@ -11,6 +11,7 @@ const WORKSPACE_NODE_MODULES = resolve(dirnameOf(import.meta), "../../../node_mo
 
 type CliOptions = {
   cwd?: string;
+  env?: NodeJS.ProcessEnv;
 };
 
 export function createTestCli() {
@@ -23,6 +24,7 @@ export function createTestCli() {
         NODE_ENV: "production",
         TEST: undefined,
         NO_COLOR: "1",
+        ...opts.env,
       },
     });
   };

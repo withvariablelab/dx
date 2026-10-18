@@ -16,12 +16,16 @@ afterEach(async () => {
   await fs.rm(tmpDir, { recursive: true, force: true });
 });
 
+function appPkg(packageJson: Pkg["packageJson"] = {}): Pkg {
+  return { dirPath: tmpDir, packageJson } as Pkg;
+}
+
 function installCtx(overrides: Partial<InstallContext> = {}): InstallContext {
   return {
     shell: {} as ShellService,
     // biome-ignore lint/suspicious/noExplicitAny: minimal stub for the test boundary
     logger: {} as any,
-    appPkg: { dirPath: tmpDir } as Pkg,
+    appPkg: appPkg(),
     prompts: stubPrompts(),
     flags: { force: false, yes: true, nonInteractive: true },
     release: new ReleaseService(undefined),
@@ -34,7 +38,7 @@ function uninstallCtx(overrides: Partial<UninstallContext> = {}): UninstallConte
     shell: {} as ShellService,
     // biome-ignore lint/suspicious/noExplicitAny: minimal stub
     logger: {} as any,
-    appPkg: { dirPath: tmpDir } as Pkg,
+    appPkg: appPkg(),
     prompts: stubPrompts(),
     flags: { yes: true, nonInteractive: true },
     ...overrides,
@@ -109,6 +113,31 @@ describe("@rrlab/ts-plugin install()", () => {
       expect(select).toHaveBeenCalledTimes(2);
       const op = result.files?.[0];
       if (op?.kind !== "edit-json") throw new Error("expected edit-json op");
+    });
+  });
+
+  describe("default preset", () => {
+    it.each([
+      ["dependencies", { dependencies: { react: "^19.0.0" } }],
+      ["peerDependencies", { peerDependencies: { react: ">=18" } }],
+    ])("is the React preset when react is in %s", async (_field, packageJson) => {
+      const result = await install(installCtx({ appPkg: appPkg(packageJson) }));
+      const op = result.files?.[0];
+      if (op?.kind !== "create") throw new Error("expected create op");
+      expect(JSON.parse(op.content).extends).toBe("@rrlab/ts-config/react");
+      expect(result.devDependencies).not.toHaveProperty("@types/node");
+    });
+
+    it("is where the interactive prompt starts", async () => {
+      const select = vi.fn(async () => "react" as unknown) as unknown as ClackPrompts["select"];
+      await install(
+        installCtx({
+          appPkg: appPkg({ devDependencies: { react: "^19.0.0" } }),
+          flags: { force: false, yes: false, nonInteractive: false },
+          prompts: stubPrompts({ select }),
+        }),
+      );
+      expect(select).toHaveBeenCalledWith(expect.objectContaining({ initialValue: "react" }));
     });
   });
 

@@ -31,3 +31,28 @@ describe("rr lint", () => {
     expect(r.status).toBe(0);
   });
 });
+
+describe("rr lint (oxc)", () => {
+  let fixture: { dir: string; cleanup: () => void };
+
+  beforeEach(() => {
+    fixture = makeFixture("lint-oxc", {
+      // oxlint skips a real node_modules but walks the fixture's symlinked one, unless it's ignored.
+      ".gitignore": "node_modules\n",
+      "package.json": fixtures.pkg(),
+      "run-run.config.mts": fixtures.config(["oxc"]),
+      "src/debug.ts": "export function f() {\n  debugger;\n}\n",
+    });
+  });
+
+  afterEach(() => fixture.cleanup());
+
+  // oxlint has no `--check` flag: it checks by default, and a warning doesn't fail it.
+  test("runs oxlint in its default check mode", () => {
+    const r = cli("lint", { cwd: fixture.dir });
+    const combined = r.stdout + r.stderr;
+    expect(combined).toContain("$ oxlint --report-unused-disable-directives\n");
+    expect(combined).toContain("no-debugger");
+    expect(r.status).toBe(0);
+  });
+});
