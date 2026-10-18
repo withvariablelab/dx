@@ -1,6 +1,6 @@
 {
   "name": "@rrlab/vitest-plugin",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "vitest plugin for @rrlab/cli — provides the test capability as a passthrough to vitest.",
   "homepage": "https://github.com/withvariablelab/dx/tree/main/run-run/vitest-plugin#readme",
   "bugs": {

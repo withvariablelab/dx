@@ -1,6 +1,6 @@
 {
   "name": "@rrlab/oxc-plugin",
-  "version": "1.1.4",
+  "version": "1.2.0",
   "description": "oxc plugin for @rrlab/cli — provides lint (oxlint) and format (oxfmt) capabilities.",
   "homepage": "https://github.com/withvariablelab/dx/tree/main/run-run/oxc-plugin#readme",
   "bugs": {

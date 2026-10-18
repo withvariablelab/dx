@@ -1,6 +1,6 @@
 {
   "name": "@variablelab/loggy",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "Console wrapper to make logging fun again",
   "homepage": "https://github.com/withvariablelab/dx/tree/main/shared/loggy#readme",
   "bugs": {
