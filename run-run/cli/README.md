@@ -36,6 +36,7 @@ See [`CLI.md`](./CLI.md) for the full reference (auto-generated per release).
 
 | Plugin   | Wraps                                                                                                          | Install                  |
 | -------- | -------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| `astro`  | [astro check](https://docs.astro.build/en/reference/cli-reference/#astro-check)                                | `rr plugins add astro`   |
 | `biome`  | [Biome](https://biomejs.dev)                                                                                   | `rr plugins add biome`   |
 | `oxc`    | [oxlint](https://oxc.rs/docs/guide/usage/linter.html) + [oxfmt](https://oxc.rs/docs/guide/usage/formatter.html) | `rr plugins add oxc`     |
 | `ts`     | [tsc](https://www.typescriptlang.org)                                                                          | `rr plugins add ts`      |

@@ -12,6 +12,7 @@ export const PLUGINS_DIRECTORY = {
   oxc: { pkg: "@rrlab/oxc-plugin", name: "oxc", capabilities: ["format", "lint", "jscheck", "typecheck"] },
   tsdown: { pkg: "@rrlab/tsdown-plugin", name: "tsdown", capabilities: ["pack"] },
   vitest: { pkg: "@rrlab/vitest-plugin", name: "vitest", capabilities: ["test"] },
+  astro: { pkg: "@rrlab/astro-plugin", name: "astro", capabilities: ["typecheck"] },
 } as const satisfies Record<string, PluginInfo>;
 
 export type PluginName = keyof typeof PLUGINS_DIRECTORY;

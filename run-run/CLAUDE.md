@@ -21,6 +21,7 @@ If you find yourself tempted to add a `pnpm <script>` that exists only to call `
 | Path | npm name | Role |
 |---|---|---|
 | `cli/` | `@rrlab/cli` | The kernel. Commander program, plugin registry, `rr` bin. Deep-dive in `cli/CLAUDE.md`. |
+| `astro-plugin/` | `@rrlab/astro-plugin` | `tsc` via `astro check`, which covers `.astro` and `.ts` files alike. |
 | `biome-plugin/` | `@rrlab/biome-plugin` | `lint` + `format` + `jsc` via Biome. |
 | `oxc-plugin/` | `@rrlab/oxc-plugin` | `lint` (oxlint) + `format` (oxfmt) + `tsc` (oxlint type-aware). `jsc` is composed by the kernel. |
 | `ts-plugin/` | `@rrlab/ts-plugin` | `tsc` (TypeScript). Has `install()` that scaffolds `tsconfig.json` from a preset. |

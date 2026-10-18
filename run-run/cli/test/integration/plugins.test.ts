@@ -54,7 +54,7 @@ describe("rr plugins", () => {
       const r = cli("plugins add not-an-alias --dry-run", { cwd: fixture.dir });
       const combined = r.stderr + r.stdout;
       expect(combined).toMatch(/'not-an-alias' is invalid for argument 'name'/);
-      expect(combined).toMatch(/Allowed choices are ts, biome, oxc, tsdown, vitest/);
+      expect(combined).toMatch(/Allowed choices are ts, biome, oxc, tsdown, vitest, astro/);
       expect(r.status).not.toBe(0);
     });
 
