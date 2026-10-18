@@ -5,8 +5,8 @@ import { hasTTY, palette } from "@variablelab/clibuddy";
 import { installDependencies } from "nypm";
 import type { Context } from "#src/services/ctx.ts";
 import { logger } from "#src/services/logger.ts";
-import { applyRootPackage, replacePlaceholders } from "./placeholders.ts";
-import { fetchTemplate, TEMPLATE_META, TEMPLATES, type TemplateName, type Visibility } from "./template.ts";
+import { applyRootPackage, replacePlaceholders, rootPackageName } from "./placeholders.ts";
+import { fetchTemplate, GITHUB_OWNERS, TEMPLATE_META, TEMPLATES, type TemplateName, type Visibility } from "./template.ts";
 
 export type InitOptions = {
   name?: string;
@@ -45,19 +45,40 @@ async function isDirEmpty(dir: string): Promise<boolean> {
   }
 }
 
-async function readGitAuthor(shell: Context["shell"]): Promise<string | undefined> {
+type GitIdentity = { name: string; email: string };
+
+const FALLBACK_GIT_IDENTITY: GitIdentity = { name: "vland", email: "noreply@variable.land" };
+
+/** The `user.name` and `user.email` git resolves from the shell's cwd. Each is empty when unset. */
+async function readGitIdentity(shell: Context["shell"]): Promise<GitIdentity> {
   try {
     const [name, email] = await Promise.all([
       shell.runCaptured("git", ["config", "--get", "user.name"], { throwOnError: false }),
       shell.runCaptured("git", ["config", "--get", "user.email"], { throwOnError: false }),
     ]);
-    const trimmedName = name.stdout.trim();
-    const trimmedEmail = email.stdout.trim();
-    if (!trimmedName) return undefined;
-    return trimmedEmail ? `${trimmedName} <${trimmedEmail}>` : trimmedName;
+    return { name: name.stdout.trim(), email: email.stdout.trim() };
   } catch {
-    return undefined;
+    return { name: "", email: "" };
   }
+}
+
+async function readGitAuthor(shell: Context["shell"]): Promise<string | undefined> {
+  const { name, email } = await readGitIdentity(shell);
+  if (!name) return undefined;
+  return email ? `${name} <${email}>` : name;
+}
+
+/**
+ * `-c` flags that fill in only the half of the identity git can't resolve. A
+ * configured identity is left alone, so `commit.gpgsign` signs with the user's
+ * own email.
+ */
+async function gitIdentityFallbackArgs(shell: Context["shell"]): Promise<string[]> {
+  const { name, email } = await readGitIdentity(shell);
+  return [
+    ...(name ? [] : ["-c", `user.name=${FALLBACK_GIT_IDENTITY.name}`]),
+    ...(email ? [] : ["-c", `user.email=${FALLBACK_GIT_IDENTITY.email}`]),
+  ];
 }
 
 function abort(message: string): never {
@@ -167,12 +188,26 @@ export async function runInit(ctx: Context, options: InitOptions) {
     projectName: name,
     author,
     year: new Date().getFullYear().toString(),
+    packageName: rootPackageName({ template, projectName: name, visibility }),
+    // Only a library picks its visibility: backend and monorepo roots are always private.
+    githubOwner: GITHUB_OWNERS[template === "library" ? (visibility ?? "public") : "private"],
   });
   await applyRootPackage(dir, { template, projectName: name, visibility });
   placeholderSpin.stop("Placeholders applied");
 
   const shouldInstall = await resolveYesNo(options.install, "Install dependencies?");
   const shouldGit = await resolveYesNo(options.git, "Initialise a git repository?");
+
+  const gitShell = shell.at(dir);
+  let gitInitError: unknown;
+  if (shouldGit) {
+    // Before the install, so a postinstall that sets up git hooks (lefthook's) finds the repo.
+    try {
+      await gitShell.runCaptured("git", ["init"]);
+    } catch (error) {
+      gitInitError = error;
+    }
+  }
 
   if (shouldInstall) {
     const installSpin = spinner();
@@ -197,17 +232,12 @@ export async function runInit(ctx: Context, options: InitOptions) {
     const gitSpin = spinner();
     gitSpin.start("Initialising git repository");
     try {
-      const gitShell = shell.at(dir).child({
-        env: {
-          GIT_AUTHOR_NAME: process.env.GIT_AUTHOR_NAME ?? "vland",
-          GIT_AUTHOR_EMAIL: process.env.GIT_AUTHOR_EMAIL ?? "noreply@variable.land",
-          GIT_COMMITTER_NAME: process.env.GIT_COMMITTER_NAME ?? "vland",
-          GIT_COMMITTER_EMAIL: process.env.GIT_COMMITTER_EMAIL ?? "noreply@variable.land",
-        },
-      });
-      await gitShell.runCaptured("git", ["init"]);
+      if (gitInitError) throw gitInitError;
       await gitShell.runCaptured("git", ["add", "-A"]);
-      await gitShell.runCaptured("git", ["commit", "-m", "chore: initial commit from vland"]);
+      // Read after `git init`, so an `includeIf "gitdir:…"` identity for the new repo applies.
+      const identityArgs = await gitIdentityFallbackArgs(gitShell);
+      // --no-verify: the hooks the install just set up are for the user's commits, not the template as generated.
+      await gitShell.runCaptured("git", [...identityArgs, "commit", "--no-verify", "-m", "chore: initial commit from vland"]);
       gitSpin.stop("Initialised git repository");
     } catch (error) {
       gitSpin.stop("Failed to initialise git", 1);

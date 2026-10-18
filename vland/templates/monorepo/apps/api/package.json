@@ -9,20 +9,19 @@
     "#test/*": "./test/*"
   },
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "node --watch --env-file-if-exists=.env src/index.ts",
     "start": "node dist/index.mjs",
     "test": "vitest run"
   },
   "dependencies": {
-    "@{{projectName}}/types": "workspace:*",
     "@elysiajs/node": "^1.4.5",
+    "@{{projectName}}/types": "workspace:*",
     "elysia": "^1.4.28",
     "evlog": "^2.17.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@rrlab/cli": "^0.1.0",
-    "tsx": "^4.21.0",
+    "@rrlab/cli": "^1.3.4",
     "vitest": "^4.0.0"
   }
 }

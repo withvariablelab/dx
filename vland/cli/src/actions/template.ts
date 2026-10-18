@@ -25,6 +25,16 @@ export const LIBRARY_SCOPES: Record<Visibility, string> = {
   public: "@variablelab",
 };
 
+/**
+ * The GitHub owner of a project's repository, indexed by visibility: public
+ * projects live in the open-source `withvariablelab` org, private ones in
+ * `variableland`.
+ */
+export const GITHUB_OWNERS: Record<Visibility, string> = {
+  private: "variableland",
+  public: "withvariablelab",
+};
+
 const GITHUB_SOURCE = "github:withvariablelab/dx";
 const GITHUB_REF = "main";
 

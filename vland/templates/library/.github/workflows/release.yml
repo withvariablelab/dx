@@ -2,40 +2,64 @@ name: Release
 
 on:
   push:
-    branches: [main]
-
-concurrency: ${{ github.workflow }}-${{ github.ref }}
+    branches:
+      - main
 
 permissions: {}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   release:
+    name: Release
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
-      contents: write
-      pull-requests: write
       id-token: write # npm trusted publishing (OIDC)
+      contents: read
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version-file: .node-version
-          cache: pnpm
-          registry-url: https://registry.npmjs.org
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm rr pack
 
-      # No NPM_TOKEN: npm trusted publishing over OIDC, set up once per package (see README).
-      - name: Release or version PR
-        uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
+      - name: 🛠️ Setup mise
+        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
-          publish: pnpm changeset publish
-          commit: "chore: release"
-          title: "chore: release"
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          commitMode: github-api
+          install: true
+          cache: true
+
+      - name: 📦 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # vland-bot, not GITHUB_TOKEN, so CI runs on the version PR.
+      - name: 🔑 Mint vland-bot token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.VLAND_BOT_CLIENT_ID }}
+          private-key: ${{ secrets.VLAND_BOT_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: 🧑‍💻 Configure git user
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+        run: |
+          user_id="$(gh api "/users/${APP_SLUG}[bot]" --jq .id)"
+          git config user.name "${APP_SLUG}[bot]"
+          git config user.email "${user_id}+${APP_SLUG}[bot]@users.noreply.github.com"
+
+      # No NPM_TOKEN: npm trusted publishing over OIDC (npm >= 11.5.1, bundled with mise's node 24).
+      - name: 🚀 Release or version PR
+        uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
+        with:
+          commit-message: "chore: update versions"
+          pr-title: "chore: update versions"
+          publish-script: pnpm changeset publish
+          github-token: ${{ steps.app-token.outputs.token }}
+        env:
+          LEFTHOOK: 0

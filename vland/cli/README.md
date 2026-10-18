@@ -43,7 +43,7 @@ See [`CLI.md`](./CLI.md) for the full reference (auto-generated per release).
 | `backend`  | An Elysia (`@elysiajs/node`) backend with evlog, Vitest, Dockerfile, CI shape.            |
 | `monorepo` | pnpm + Turbo workspace with an Elysia API, a Vite-React SPA, and a few internal packages. |
 
-All templates target Node.js, use pnpm, and ship [`@rrlab/cli`](https://github.com/withvariablelab/dx/tree/main/run-run) (`rr`) as the single entry point for lint, format, type-check, and build. The per-tool config files (`biome.json`, `tsconfig.json`, `tsdown.config.ts`) are not bundled — run `rr plugins add biome ts tsdown` (one at a time) in your new project to opt in. See the scaffolded README for the exact post-install setup.
+All templates target Node.js, pin Node.js and pnpm with [mise](https://mise.jdx.dev) (`mise.toml` and `mise.lock`), run their GitHub Actions on SHA-pinned actions checked by [zizmor](https://docs.zizmor.sh), and ship [`@rrlab/cli`](https://github.com/withvariablelab/dx/tree/main/run-run) (`rr`) as the single entry point for lint, format, type-check, and build. The per-tool config files (`biome.json`, `tsconfig.json`, `tsdown.config.ts`) are not bundled — run `rr plugins add biome ts tsdown` (one at a time) in your new project to opt in. See the scaffolded README for the exact post-install setup.
 
 ## Shell completion
 

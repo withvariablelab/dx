@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import { type Health, HealthSchema } from "@{{projectName}}/types";
+import { useEffect, useState } from "react";
 
 export function App() {
   const [health, setHealth] = useState<Health | null>(null);
