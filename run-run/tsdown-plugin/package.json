@@ -60,6 +60,6 @@
     "@types/semver": "catalog:",
     "semver": "catalog:",
     "tsdown": "catalog:",
-    "typescript": "6.0.3"
+    "typescript": "catalog:"
   }
 }
