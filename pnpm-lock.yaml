@@ -124,6 +124,9 @@ importers:
       '@biomejs/biome':
         specifier: 2.4.15
         version: 2.4.15
+      '@rrlab/biome-config':
+        specifier: workspace:^
+        version: link:../biome-config
       '@rrlab/cli':
         specifier: workspace:*
         version: link:../cli
