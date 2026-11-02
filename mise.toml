@@ -1,9 +1,11 @@
+min_version = "2026.10.19"
+
 [env]
 _.path = ["{{config_root}}/node_modules/.bin"]
 
 [tools]
 node = "24"
-pnpm = "10.30.3"
+pnpm = "12.16.1"
 usage = "3.3.0"
 
 [settings]
