@@ -13,7 +13,7 @@ const SKIPPED_DIRS = new Set([".git", ".turbo", "node_modules", "dist", "decisio
 const SKIPPED_FILES = new Set(["CHANGELOG.md"]);
 
 const PLUGIN_COUNT = /\b(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:official\s+)?plugins\b/gi;
-const WHATS_HERE_ROW = /^\| `([a-z0-9-]+)-plugin\/` \|/gm;
+const WHATS_HERE_ROW = /^\| `([a-z0-9-]+)-plugin\/` +\|/gm;
 const README_PLUGINS_ROW = /^\| `([a-z0-9-]+)` +\|/gm;
 
 function walk(dir: string): string[] {
@@ -99,6 +99,21 @@ describe("plugin docs", () => {
       const aliases = tableAliases(section(`\n${markdown}`, "## Plugins"), README_PLUGINS_ROW);
       expect(aliases).toEqual(["biome", "ts"]);
       expect(aliases).not.toEqual(OFFICIAL);
+    });
+
+    it("reads the What's here rows whether or not a formatter aligned the table", () => {
+      const markdown = [
+        "## What's here",
+        "",
+        "| Path             | Role   |",
+        "| ---------------- | ------ |",
+        "| `cli/`           | Kernel |",
+        "| `biome-plugin/`  | Biome  |",
+        "| `tsdown-plugin/` | tsdown |",
+        "| `ts-plugin/` | tsc |",
+      ].join("\n");
+      const aliases = tableAliases(section(`\n${markdown}`, "## What's here"), WHATS_HERE_ROW);
+      expect(aliases).toEqual(["biome", "ts", "tsdown"]);
     });
   });
 });
