@@ -27,5 +27,5 @@ The board owns the terminal region while live and only hands back to `logger` on
 
 ## Notes for human review
 
-- This *adds* a clibuddy service; it does not refactor clibuddy's existing API, so it stays within the `run-run/CLAUDE.md` "don't refactor clibuddy while doing run-run work" guard. It still lands as its own clibuddy change with its own changeset, then consumed by the kernel.
+- This _adds_ a clibuddy service; it does not refactor clibuddy's existing API, so it stays within the `run-run/CLAUDE.md` "don't refactor clibuddy while doing run-run work" guard. It still lands as its own clibuddy change with its own changeset, then consumed by the kernel.
 - Paired with [013](013-check-stream-to-capture-contract.md), which covers the stream→capture change the board depends on.

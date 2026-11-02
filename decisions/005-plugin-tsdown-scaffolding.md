@@ -50,6 +50,7 @@ AST-match is robust against all three. It also mirrors `plugin-ts`'s `uninstall(
 ## Install/uninstall semantics
 
 ### Install
+
 - **No file** → prompt to scaffold, prompt preset, emit `create` FileOp.
 - **File exists, interactive** → prompt `patch` / `skip` / `overwrite`:
   - **patch** → `edit-text` op that uses `magicast` to (1) verify the default export is `defineConfig(...)` from `tsdown` or one of our factories, (2) swap the import to `@rrlab/tsdown-config`, (3) rename the callee. **Refuses to mutate** non-`defineConfig` default exports — throws a clear error rather than guess.
@@ -58,6 +59,7 @@ AST-match is robust against all three. It also mirrors `plugin-ts`'s `uninstall(
 - **File exists, `--yes` / non-interactive** → `skip`. We deliberately diverge from `plugin-ts`'s default-to-patch policy ([D-004]'s "notes for human review") because rewriting a TS module non-interactively is higher-risk than patching JSON; the user can opt in by re-running interactively.
 
 ### Uninstall (symmetric)
+
 - Always emits `removeDependencies: ["tsdown", "@rrlab/tsdown-config"]`.
 - If no file → no FileOp.
 - If file's default export is a no-arg call to one of our factories from `@rrlab/tsdown-config` → emit `delete`.

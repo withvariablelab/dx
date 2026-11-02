@@ -14,11 +14,11 @@ It needs `@rrlab/cli` and Biome 2 or later.
 
 ## What it provides
 
-| Capability | Commands |
-| --- | --- |
-| `lint` | `rr lint`, `rr lint doctor` |
-| `format` | `rr format`, `rr format doctor` |
-| `jscheck` | `rr jsc` (lint and format together), `rr jsc doctor` |
+| Capability | Commands                                             |
+| ---------- | ---------------------------------------------------- |
+| `lint`     | `rr lint`, `rr lint doctor`                          |
+| `format`   | `rr format`, `rr format doctor`                      |
+| `jscheck`  | `rr jsc` (lint and format together), `rr jsc doctor` |
 
 ## Configuration
 

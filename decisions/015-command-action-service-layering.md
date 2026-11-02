@@ -16,7 +16,7 @@ Command bodies under `src/program/commands/**` mixed commander wiring with busin
 
 ## Decision: Option A
 
-`actions/` is the use-case layer — pure functions importing only `services`/`render`/`lib`, never the framework — so the same action runs under any front-end and is unit-testable without spawning. Commander commands become thin controllers that resolve the provider (throwing `MissingPluginError` with their `static`-style `providers` list when absent) and call exactly one action. The kernel owning `ui` (one `PLUGINS_DIRECTORY` color per plugin, applied in `PluginRegistry.register`) removes four copies of label-coloring and keeps plugins free of presentation — consistent with the kernel-agnosticism principle (the directory keys on plugin *names*, never tool identities). Error classes build their message from structured args and do not set `this.name`, preserving the plain `Error:` prefix.
+`actions/` is the use-case layer — pure functions importing only `services`/`render`/`lib`, never the framework — so the same action runs under any front-end and is unit-testable without spawning. Commander commands become thin controllers that resolve the provider (throwing `MissingPluginError` with their `static`-style `providers` list when absent) and call exactly one action. The kernel owning `ui` (one `PLUGINS_DIRECTORY` color per plugin, applied in `PluginRegistry.register`) removes four copies of label-coloring and keeps plugins free of presentation — consistent with the kernel-agnosticism principle (the directory keys on plugin _names_, never tool identities). Error classes build their message from structured args and do not set `this.name`, preserving the plain `Error:` prefix.
 
 ## Alternatives rejected
 

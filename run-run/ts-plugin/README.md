@@ -22,8 +22,8 @@ It needs `@rrlab/cli` and TypeScript 5 or later.
 
 ## What it provides
 
-| Capability | Commands |
-| --- | --- |
+| Capability  | Commands                                                 |
+| ----------- | -------------------------------------------------------- |
 | `typecheck` | `rr tsc` (workspace-aware in monorepos), `rr tsc doctor` |
 
 ## Configuration

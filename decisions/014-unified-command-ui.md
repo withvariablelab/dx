@@ -23,7 +23,7 @@ After the board redesign (012/013), `lint`/`format`/`jsc`/`tsc` render the task 
 #### One canonical labeller
 
 The labels were the real duplication — each command built `<command> (<tool>) · <package>` (or a fan-out title) by hand, and they'd drifted (`rr jsc doctor` showed bare `biome`; single-app `tsc` lacked the `· <pkg>`). Two free functions in `board.ts` are now the single source of truth, and every command/subcommand routes through them:
-- `targetLabel(command, provider, appPkg)` → `<command> (<tool>) · <package>` for any single-target row (lint, format, jsc, pack, single-app tsc, every `doctor` subcommand). Dedups to just `<command>` when the tool's binary *is* the command (so `tsc`, not `tsc (tsc)`).
+- `targetLabel(command, provider, appPkg)` → `<command> (<tool>) · <package>` for any single-target row (lint, format, jsc, pack, single-app tsc, every `doctor` subcommand). Dedups to just `<command>` when the tool's binary _is_ the command (so `tsc`, not `tsc (tsc)`).
 - `fanoutTitle(command, provider?, count, unit)` → `<command> (<tool>) · <n> <unit>` for fan-out section titles (monorepo `tsc` → `tsc (oxlint) · 8 packages`; `rr doctor` → `doctor · 3 tools`, tool omitted because the rows span several tools and carry the per-tool name).
 
 ### Scope (which commands join the board)

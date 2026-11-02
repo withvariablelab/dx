@@ -32,14 +32,14 @@ The [CLI reference](https://github.com/withvariablelab/dx/blob/main/run-run/cli/
 
 `rr` is a microkernel: every tool lives in its own `@rrlab/<tool>-plugin` package. The official plugins are:
 
-| Plugin   | Wraps                                                                                                          | Install                  |
-| -------- | -------------------------------------------------------------------------------------------------------------- | ------------------------ |
-| `astro`  | [astro check](https://docs.astro.build/en/reference/cli-reference/#astro-check)                                | `rr plugins add astro`   |
-| `biome`  | [Biome](https://biomejs.dev)                                                                                   | `rr plugins add biome`   |
-| `oxc`    | [oxlint](https://oxc.rs/docs/guide/usage/linter.html) + [oxfmt](https://oxc.rs/docs/guide/usage/formatter.html) | `rr plugins add oxc`     |
-| `ts`     | [tsc](https://www.typescriptlang.org)                                                                          | `rr plugins add ts`      |
-| `tsdown` | [tsdown](https://tsdown.dev)                                                                                   | `rr plugins add tsdown`  |
-| `vitest` | [vitest](https://vitest.dev)                                                                                   | `rr plugins add vitest`  |
+| Plugin   | Wraps                                                                                                           | Install                 |
+| -------- | --------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| `astro`  | [astro check](https://docs.astro.build/en/reference/cli-reference/#astro-check)                                 | `rr plugins add astro`  |
+| `biome`  | [Biome](https://biomejs.dev)                                                                                    | `rr plugins add biome`  |
+| `oxc`    | [oxlint](https://oxc.rs/docs/guide/usage/linter.html) + [oxfmt](https://oxc.rs/docs/guide/usage/formatter.html) | `rr plugins add oxc`    |
+| `ts`     | [tsc](https://www.typescriptlang.org)                                                                           | `rr plugins add ts`     |
+| `tsdown` | [tsdown](https://tsdown.dev)                                                                                    | `rr plugins add tsdown` |
+| `vitest` | [vitest](https://vitest.dev)                                                                                    | `rr plugins add vitest` |
 
 Install one with:
 
@@ -131,7 +131,7 @@ brew install usage
 
 ## Troubleshooting
 
-To enable debug mode, set the `DEBUG` environment variable to `run-run:*` before running *any* command.
+To enable debug mode, set the `DEBUG` environment variable to `run-run:*` before running _any_ command.
 
 ```sh
 DEBUG=run-run:* pnpm rr <command>

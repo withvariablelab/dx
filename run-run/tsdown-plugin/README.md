@@ -19,9 +19,9 @@ It needs `@rrlab/cli`, tsdown 0.22 or later and, to write declarations, TypeScri
 
 ## What it provides
 
-| Capability | Commands |
-| --- | --- |
-| `pack` | `rr pack`, `rr pack doctor` |
+| Capability | Commands                    |
+| ---------- | --------------------------- |
+| `pack`     | `rr pack`, `rr pack doctor` |
 
 With the `lib` preset, `rr pack` writes ESM JavaScript and `.d.ts` declarations to `dist/`, so consumers can `import` from the published package.
 

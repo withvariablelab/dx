@@ -14,9 +14,9 @@ It needs `@rrlab/cli` and Vitest 3 or later.
 
 ## What it provides
 
-| Capability | Commands |
-| --- | --- |
-| `test` | `rr test`, `rr test doctor` |
+| Capability | Commands                    |
+| ---------- | --------------------------- |
+| `test`     | `rr test`, `rr test doctor` |
 
 ## Usage
 
