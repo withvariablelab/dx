@@ -1,5 +1,11 @@
 # @rrlab/biome-config
 
+## 0.0.6
+
+### Patch Changes
+
+- [#293](https://github.com/withvariablelab/dx/pull/293) [`cbc4727`](https://github.com/withvariablelab/dx/commit/cbc4727ee0b65c7a0cf0f64c055fc3a33714258a) Thanks [@rqbazan](https://github.com/rqbazan)! - The preset no longer sets `$schema` or `linter.rules.recommended`, so Biome 2.6 stops printing a schema-version notice and a deprecation notice on every run, with the same rules on as before.
+
 ## 0.0.5
 
 ### Patch Changes
