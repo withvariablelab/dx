@@ -1,6 +1,6 @@
 {
   "name": "@rrlab/biome-plugin",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "run-run plugin for Biome: the lint, format and jscheck capabilities.",
   "homepage": "https://github.com/withvariablelab/dx/tree/main/run-run/biome-plugin#readme",
   "bugs": {

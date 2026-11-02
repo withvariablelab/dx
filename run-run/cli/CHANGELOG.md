@@ -1,5 +1,20 @@
 # @rrlab/cli
 
+## 1.6.0
+
+### Minor Changes
+
+- [#285](https://github.com/withvariablelab/dx/pull/285) [`f963159`](https://github.com/withvariablelab/dx/commit/f963159e692b572b39d486814cb292de69707077) Thanks [@rqbazan](https://github.com/rqbazan)! - `rr tsc doctor` checks the packages `rr tsc` checks. In a monorepo it runs the health check in each workspace package with a `tsconfig.json`, one row per package, instead of once at the workspace root, which `rr tsc` never checks. The other `doctor` commands and `rr doctor` run in the package they report on, the one with the nearest `package.json`, instead of the directory `rr` was started from. Plugins get that package as `doctor({ cwd })`, typed by the new `DoctorOptions`.
+
+### Patch Changes
+
+- [#284](https://github.com/withvariablelab/dx/pull/284) [`a3ee007`](https://github.com/withvariablelab/dx/commit/a3ee00798de014e87b3eef92fff76b4151a986ce) Thanks [@rqbazan](https://github.com/rqbazan)! - `rr plugins add` and `rr plugins remove` leave a JSON config file as it is when the plugin's edits change nothing in it, as with `rr plugins add biome --force` or `rr plugins add ts --force` on a file that already has them: the file stays byte-identical, and the output says "No changes for …". It used to be rewritten with a 2-space indent and each array item on its own line, so `rr check` failed on it.
+
+- [#281](https://github.com/withvariablelab/dx/pull/281) [`301bfe5`](https://github.com/withvariablelab/dx/commit/301bfe5202550431cc9e725f8efe703ab7e57fb8) Thanks [@rqbazan](https://github.com/rqbazan)! - The npm description, and the README where it changed, say what the code does.
+- Updated dependencies [[`301bfe5`](https://github.com/withvariablelab/dx/commit/301bfe5202550431cc9e725f8efe703ab7e57fb8)]:
+  - @variablelab/clibuddy@0.8.2
+  - @variablelab/loggy@0.3.2
+
 ## 1.5.1
 
 ### Patch Changes

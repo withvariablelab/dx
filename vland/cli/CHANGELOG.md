@@ -1,5 +1,18 @@
 # @variablelab/vland
 
+## 0.4.2
+
+### Patch Changes
+
+- [#281](https://github.com/withvariablelab/dx/pull/281) [`301bfe5`](https://github.com/withvariablelab/dx/commit/301bfe5202550431cc9e725f8efe703ab7e57fb8) Thanks [@rqbazan](https://github.com/rqbazan)! - The npm description, and the README where it changed, say what the code does.
+
+- [#286](https://github.com/withvariablelab/dx/pull/286) [`7a42302`](https://github.com/withvariablelab/dx/commit/7a423025abe7e696d07d68fbce9acfa2227b703d) Thanks [@rqbazan](https://github.com/rqbazan)! - `vland init -t monorepo` no longer ships Changesets (`.changeset/` and the `@changesets/*` devDependencies). Every package in the monorepo is private and it has no release workflow, so Changesets had nothing to version or publish. Only the `library` template ships ready to publish to npm.
+
+- [#286](https://github.com/withvariablelab/dx/pull/286) [`7a42302`](https://github.com/withvariablelab/dx/commit/7a423025abe7e696d07d68fbce9acfa2227b703d) Thanks [@rqbazan](https://github.com/rqbazan)! - Projects from `vland init` let lefthook's install script run through pnpm's `allowBuilds` setting, which pnpm prefers since 10.26, instead of `onlyBuiltDependencies`, which pnpm 11 removed. A generated project that moved to pnpm 11 would have had its `onlyBuiltDependencies` ignored, so `pnpm install` failed with `ERR_PNPM_IGNORED_BUILDS` and the git hooks never got installed. The monorepo no longer lists `@biomejs/biome`, which has had no install script since Biome 2.
+- Updated dependencies [[`301bfe5`](https://github.com/withvariablelab/dx/commit/301bfe5202550431cc9e725f8efe703ab7e57fb8)]:
+  - @variablelab/clibuddy@0.8.2
+  - @variablelab/loggy@0.3.2
+
 ## 0.4.1
 
 ### Patch Changes

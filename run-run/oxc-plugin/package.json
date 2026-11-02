@@ -1,6 +1,6 @@
 {
   "name": "@rrlab/oxc-plugin",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "run-run plugin for oxc: the lint (oxlint), format (oxfmt) and typecheck (oxlint type-aware) capabilities.",
   "homepage": "https://github.com/withvariablelab/dx/tree/main/run-run/oxc-plugin#readme",
   "bugs": {

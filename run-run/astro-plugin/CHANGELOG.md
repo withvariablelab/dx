@@ -1,5 +1,17 @@
 # @rrlab/astro-plugin
 
+## 0.1.2
+
+### Patch Changes
+
+- [#285](https://github.com/withvariablelab/dx/pull/285) [`f963159`](https://github.com/withvariablelab/dx/commit/f963159e692b572b39d486814cb292de69707077) Thanks [@rqbazan](https://github.com/rqbazan)! - `rr tsc doctor` looks for what `astro check` needs, `@astrojs/check` and `typescript`, in each package it checks instead of the directory `rr` was started from. Run at a monorepo root, it used to look for them there, and reported them missing when only the Astro package had them.
+
+- [#285](https://github.com/withvariablelab/dx/pull/285) [`f963159`](https://github.com/withvariablelab/dx/commit/f963159e692b572b39d486814cb292de69707077) Thanks [@rqbazan](https://github.com/rqbazan)! - In a monorepo, `rr tsc` and `rr check` run `astro check` only in the Astro packages, the ones with an `astro.config.*` or with `astro` in `dependencies`, `devDependencies` or `peerDependencies`, and `tsc --noEmit` in the other packages with a `tsconfig.json`. `astro check` used to run in every one of them, so in a plain TypeScript package it booted Astro, printed Vite warnings and wrote `.astro/` into the package. Such a package needs only `typescript`, and `rr tsc doctor` there checks `tsc`.
+
+- [#281](https://github.com/withvariablelab/dx/pull/281) [`301bfe5`](https://github.com/withvariablelab/dx/commit/301bfe5202550431cc9e725f8efe703ab7e57fb8) Thanks [@rqbazan](https://github.com/rqbazan)! - The npm description, and the README where it changed, say what the code does.
+- Updated dependencies [[`301bfe5`](https://github.com/withvariablelab/dx/commit/301bfe5202550431cc9e725f8efe703ab7e57fb8)]:
+  - @variablelab/clibuddy@0.8.2
+
 ## 0.1.1
 
 ### Patch Changes
