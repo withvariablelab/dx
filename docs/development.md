@@ -14,7 +14,7 @@ The workspace is pnpm, the tasks run through [Turborepo](https://turborepo.com),
 
 ## Setup
 
-[mise](https://mise.jdx.dev) pins Node 24, pnpm and [usage](https://usage.jdx.dev) in `mise.toml`, locked in `mise.lock`. It also puts `node_modules/.bin` on the `PATH`, so `rr` and `vland` run by name.
+[mise](https://mise.jdx.dev) 2026.10.19 or later pins Node 24, pnpm and [usage](https://usage.jdx.dev) in `mise.toml`, locked in `mise.lock`. It also puts `node_modules/.bin` on the `PATH`, so `rr` and `vland` run by name.
 
 ```sh
 git clone git@github.com:withvariablelab/dx.git
