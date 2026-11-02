@@ -52,6 +52,6 @@
     "@rrlab/tsdown-config": "workspace:^",
     "@types/semver": "catalog:",
     "semver": "catalog:",
-    "vitest": "^4.0.0"
+    "vitest": "catalog:"
   }
 }
