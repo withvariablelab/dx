@@ -27,7 +27,7 @@ Then create a `biome.json`:
 }
 ```
 
-It needs Biome 2 or later: the preset's `$schema` URL is tied to a Biome major, and the rule set changes between majors.
+It needs Biome 2 or later.
 
 ## Configuration
 

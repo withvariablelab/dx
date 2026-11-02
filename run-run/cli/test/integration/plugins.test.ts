@@ -1,5 +1,6 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { stripVTControlCharacters } from "node:util";
 import { afterEach, describe, expect, test } from "vitest";
 import { createTestCli, fixtures, makeFixture } from "#test/helpers.ts";
 
@@ -168,7 +169,9 @@ describe("rr plugins", () => {
 }
 `);
       const jsc = cli("jsc", { cwd: fixture.dir });
-      expect(jsc.status, jsc.stdout + jsc.stderr).toBe(0);
+      const jscOutput = jsc.stdout + jsc.stderr;
+      expect(jsc.status, jscOutput).toBe(0);
+      expect(stripVTControlCharacters(jscOutput)).not.toMatch(/\bdeserialize\b/);
     });
 
     test("patches an existing biome.json into one that passes `rr jsc`", () => {
