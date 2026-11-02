@@ -1,6 +1,6 @@
 {
   "name": "@variablelab/clibuddy",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "The helpers that run-run and vland build their CLIs with.",
   "homepage": "https://github.com/withvariablelab/dx/tree/main/shared/clibuddy#readme",
   "bugs": {

@@ -1,5 +1,15 @@
 # @rrlab/biome-plugin
 
+## 1.2.2
+
+### Patch Changes
+
+- [#284](https://github.com/withvariablelab/dx/pull/284) [`a3ee007`](https://github.com/withvariablelab/dx/commit/a3ee00798de014e87b3eef92fff76b4151a986ce) Thanks [@rqbazan](https://github.com/rqbazan)! - `rr plugins add biome` on a project that already has a `biome.json` formats the patched file with the installed Biome, so `rr jsc`, `rr format` and `rr check` pass on it. It used to leave the file with a 2-space indent and every array item on its own line, including arrays it didn't touch, which Biome's format check rejects. If Biome can't format the file, it's left as patched and `rr plugins add` still succeeds.
+
+- [#281](https://github.com/withvariablelab/dx/pull/281) [`301bfe5`](https://github.com/withvariablelab/dx/commit/301bfe5202550431cc9e725f8efe703ab7e57fb8) Thanks [@rqbazan](https://github.com/rqbazan)! - The npm description, and the README where it changed, say what the code does.
+- Updated dependencies [[`301bfe5`](https://github.com/withvariablelab/dx/commit/301bfe5202550431cc9e725f8efe703ab7e57fb8)]:
+  - @variablelab/clibuddy@0.8.2
+
 ## 1.2.1
 
 ### Patch Changes

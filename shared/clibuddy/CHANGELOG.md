@@ -1,5 +1,11 @@
 # @variablelab/clibuddy
 
+## 0.8.2
+
+### Patch Changes
+
+- [#281](https://github.com/withvariablelab/dx/pull/281) [`301bfe5`](https://github.com/withvariablelab/dx/commit/301bfe5202550431cc9e725f8efe703ab7e57fb8) Thanks [@rqbazan](https://github.com/rqbazan)! - The npm description, and the README where it changed, say what the code does.
+
 ## 0.8.1
 
 ### Patch Changes

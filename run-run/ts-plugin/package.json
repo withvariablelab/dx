@@ -1,6 +1,6 @@
 {
   "name": "@rrlab/ts-plugin",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "run-run plugin for TypeScript: the typecheck capability, backed by tsc.",
   "homepage": "https://github.com/withvariablelab/dx/tree/main/run-run/ts-plugin#readme",
   "bugs": {

@@ -1,6 +1,6 @@
 {
   "name": "@variablelab/vland",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Starts a project in Variable Land.",
   "homepage": "https://github.com/withvariablelab/dx/tree/main/vland/cli#readme",
   "bugs": {
