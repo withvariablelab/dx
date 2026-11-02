@@ -59,7 +59,7 @@
     "@rrlab/tsdown-config": "workspace:^",
     "@types/semver": "catalog:",
     "semver": "catalog:",
-    "tsdown": "0.22.0",
+    "tsdown": "catalog:",
     "typescript": "6.0.3"
   }
 }

@@ -75,6 +75,6 @@
   },
   "devDependencies": {
     "@rrlab/tsdown-config": "workspace:^",
-    "tsdown": "0.22.0"
+    "tsdown": "catalog:"
   }
 }
