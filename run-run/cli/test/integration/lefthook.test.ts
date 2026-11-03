@@ -128,7 +128,7 @@ describe("the lefthook configs in @rrlab/cli/lefthook", () => {
   });
 
   test("a repo skips a shared job with skip: true beside a run line, and the shared run stays", () => {
-    const r = validate({ "lefthook.yml": skipTsc("      run: pnpm rr tsc") });
+    const r = validate({ "lefthook.yml": skipTsc("      run: echo not-the-shared-run") });
     expect(r.status, r.stdout + r.stderr).toBe(0);
 
     const config = JSON.parse(lefthook("dump", "--format", "json").stdout) as LefthookConfig;
