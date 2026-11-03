@@ -18,7 +18,7 @@ rr plugins add ts
 
 The default is `react` when your project depends on `react`, and `no-dom-app` otherwise. The `no-dom-*` presets also add `@types/node`. If `tsconfig.json` already exists, you choose to patch it, which is the default, keep it or overwrite it.
 
-It needs `@rrlab/cli` and TypeScript 5 or later.
+It needs `@rrlab/cli` and TypeScript 5 or later, and the presets need TypeScript 5.4 or later.
 
 ## What it provides
 
