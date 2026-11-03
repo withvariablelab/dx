@@ -15,7 +15,7 @@ rr plugins add tsdown
 
 If a `tsdown.config.*` already exists, you choose to patch it, keep it or overwrite it. Patching turns a default export that calls `defineConfig()` from `tsdown`, or either helper, into a call to the helper you picked, and keeps its options. It refuses any other shape.
 
-It needs `@rrlab/cli`, tsdown 0.22 or later and, to write declarations, TypeScript 5 or later.
+It needs `@rrlab/cli`, tsdown 0.22 or later and, to write declarations, TypeScript 5 or later. With TypeScript 7, tsdown writes declarations only in a package with a `tsconfig.json`, so the `typescript` it adds is TypeScript 6.
 
 ## What it provides
 
