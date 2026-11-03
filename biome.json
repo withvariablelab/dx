@@ -5,6 +5,7 @@
     "includes": [
       "**",
       "!vland/templates",
+      "!vland/cli/**/*.md",
       "!pnpm-lock.yaml",
       "!.mise/locks",
       "!.changeset/*.md",

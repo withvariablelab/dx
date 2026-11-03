@@ -70,7 +70,7 @@ When you upgrade `@variablelab/vland`, the next shell session will pick up new c
 
 ## Troubleshooting
 
-To enable debug mode, set the `DEBUG` environment variable to `vland:*` before running _any_ command.
+To enable debug mode, set the `DEBUG` environment variable to `vland:*` before running *any* command.
 
 ```sh
 DEBUG=vland:* vland init my-app
