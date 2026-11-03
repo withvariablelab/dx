@@ -1,5 +1,5 @@
 ---
-"@rrlab/cli": patch
+"@rrlab/cli": minor
 ---
 
-`@rrlab/cli` depends on nypm 0.6.12, lilconfig 3.1.4, commander 15, whose "too many arguments" error now lists the extra arguments, and glob 14, which `rr clean` uses to find what it deletes as well as what `--dry-run` lists, and no longer on memoize, which it never imported.
+`@rrlab/cli` moves to nypm 0.6.12, lilconfig 3.1.4, commander 15 (its "too many arguments" error lists the extra arguments), glob 14 (`rr clean` deletes the paths `--dry-run` lists) and comment-json 5 (`rr plugins add` keeps the blank lines of a JSON file it edits), and drops memoize, which it never imported.

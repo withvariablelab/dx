@@ -64,7 +64,7 @@
     "@variablelab/clibuddy": "workspace:*",
     "@variablelab/loggy": "workspace:*",
     "commander": "15.0.0",
-    "comment-json": "4.2.5",
+    "comment-json": "5.0.0",
     "fast-string-width": "3.0.2",
     "glob": "14.0.3",
     "lilconfig": "3.1.4",

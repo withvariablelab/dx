@@ -36,6 +36,12 @@ describe("applyJsonEdits", () => {
       expect(out).toContain("// a comment");
       expect(JSON.parse(out.replace(/\/\/.*/g, ""))).toEqual({ extends: "new", include: ["src"] });
     });
+
+    it("keeps the blank lines between the user's keys", () => {
+      const source = `{\n  "extends": "old",\n\n  "compilerOptions": {\n    "strict": true,\n\n    "outDir": "dist"\n  }\n}\n`;
+      const out = applyJsonEdits(source, [{ op: "set", path: "/extends", value: "new" }]);
+      expect(out).toBe(`{\n  "extends": "new",\n\n  "compilerOptions": {\n    "strict": true,\n\n    "outDir": "dist"\n  }\n}\n`);
+    });
   });
 
   describe("op: unset", () => {

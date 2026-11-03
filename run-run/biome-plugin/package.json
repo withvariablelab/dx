@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@variablelab/clibuddy": "workspace:*",
-    "comment-json": "4.2.5"
+    "comment-json": "5.0.0"
   },
   "peerDependencies": {
     "@biomejs/biome": ">=2.3.0",
