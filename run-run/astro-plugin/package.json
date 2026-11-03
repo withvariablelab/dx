@@ -50,11 +50,11 @@
     "typescript": "^5.0.0 || ^6.0.0"
   },
   "devDependencies": {
-    "@astrojs/check": "0.9.10",
+    "@astrojs/check": "0.9.12",
     "@rrlab/cli": "workspace:*",
     "@rrlab/tsdown-config": "workspace:^",
     "@types/semver": "catalog:",
-    "astro": "7.4.0",
+    "astro": "7.4.4",
     "semver": "catalog:",
     "typescript": "6.0.3"
   }
