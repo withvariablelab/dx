@@ -11,7 +11,7 @@ const LEFTHOOK = path.join(REPO_DIR, "node_modules/.bin/lefthook");
 const BASE = "node_modules/@rrlab/cli/lefthook/base.yml";
 const TURBOREPO = "node_modules/@rrlab/cli/lefthook/turborepo.yml";
 
-type Job = { name?: string; run?: string };
+type Job = { name?: string; run?: string; skip?: boolean };
 type LefthookConfig = Partial<Record<"pre-commit" | "pre-push", { jobs: Job[] }>>;
 
 const yaml = (...lines: string[]) => `${lines.join("\n")}\n`;
@@ -39,6 +39,15 @@ describe("the lefthook configs in @rrlab/cli/lefthook", () => {
   }
 
   const dumpJson = (files: FixtureFiles) => JSON.parse(dump(files, "--format", "json")) as LefthookConfig;
+
+  function validate(files: FixtureFiles) {
+    fixture = makeFixture("lefthook", files);
+    git("init", "-q");
+    return lefthook("validate");
+  }
+
+  const skipTsc = (...lines: string[]) =>
+    `${extendsOf(BASE)}\n${yaml("pre-commit:", "  jobs:", "    - name: tsc", ...lines, "      skip: true")}`;
 
   test("a turborepo that extends base.yml and turborepo.yml gets the pre-commit jobs and the affected tests", () => {
     expect(dump({ "lefthook.yml": extendsOf(BASE, TURBOREPO) })).toMatchInlineSnapshot(`
@@ -112,6 +121,21 @@ describe("the lefthook configs in @rrlab/cli/lefthook", () => {
     });
 
     expect(config["pre-push"]?.jobs).toEqual([{ name: "test", run: "pnpm test" }]);
+  });
+
+  test("lefthook validate refuses a repo's job that sets skip: true with no run", () => {
+    expect(validate({ "lefthook.yml": skipTsc() }).status).not.toBe(0);
+  });
+
+  test("a repo skips a shared job with skip: true beside a run line, and the shared run stays", () => {
+    const r = validate({ "lefthook.yml": skipTsc("      run: pnpm rr tsc") });
+    expect(r.status, r.stdout + r.stderr).toBe(0);
+
+    const config = JSON.parse(lefthook("dump", "--format", "json").stdout) as LefthookConfig;
+    expect(config["pre-commit"]?.jobs.find((job) => job.name === "tsc")).toMatchObject({
+      run: "pnpm rr tsc",
+      skip: true,
+    });
   });
 
   test("the package ships both files", () => {
