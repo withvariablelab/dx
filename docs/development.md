@@ -51,7 +51,7 @@ In the repo, `pnpm rr` and `pnpm vland`, or `rr` and `vland` with mise, run each
 
 ## CI
 
-- **On each pull request to `main`:** CI runs `pnpm install --frozen-lockfile`, `pnpm rr check`, `pnpm test` and `pnpm build`, once on the Node floor in `mise.floor.toml` and once on the version in `mise.toml`. The required `Test` check passes when both do. Workflow audit runs [zizmor](https://docs.zizmor.sh) on every workflow in the repo, including those the vland templates generate.
+- **On each pull request to `main`:** CI sets up mise 2026.10.19 and the locked tools with [mise-action](https://github.com/jdx/mise-action), then runs `pnpm install --frozen-lockfile`, `pnpm rr check`, `pnpm test` and `pnpm build`, once on the Node floor in `mise.floor.toml` and once on the version in `mise.toml`. The required `Test` check passes when both do. Workflow audit runs [zizmor](https://docs.zizmor.sh) on every workflow in the repo, including those the vland templates generate.
 - **Git hooks** ([lefthook](https://lefthook.dev), in `lefthook.yml`): on commit, in parallel, `rr jsc --fix-staged` on the staged files, `rr tsc` on the whole repo when a TypeScript file or a tsconfig changed, and gitleaks on the staged changes; on push, the tests of the affected packages. `lefthook/turborepo.yml` is not dx's: it holds the hooks that other repos extend.
 - **Every Monday:** `pnpm audit` on the lockfile, which keeps an issue labeled `dependency-audit` open while it finds known vulnerabilities (Dependency audit).
 
