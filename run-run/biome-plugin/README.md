@@ -10,7 +10,7 @@ rr plugins add biome
 
 `rr plugins add` installs `@rrlab/biome-plugin` and adds `@biomejs/biome` as a dev dependency. Once you confirm, it writes a `biome.json` that extends [`@rrlab/biome-config`](https://www.npmjs.com/package/@rrlab/biome-config). If `biome.json` already exists, you choose to patch it, keep it or overwrite it. A patch adds the preset to `extends`, keeps your other settings, and formats the file with the installed Biome, so `rr jsc` passes on it.
 
-It needs `@rrlab/cli` and Biome 2 or later.
+It needs `@rrlab/cli` and Biome 2.3 or later.
 
 ## What it provides
 

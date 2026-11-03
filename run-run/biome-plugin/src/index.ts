@@ -27,7 +27,7 @@ const FROM = import.meta.url;
 const COMMON_FLAGS = ["--colors=force", "--no-errors-on-unmatched"];
 const BIOME_JSON = "biome.json";
 const BIOME_CONFIG_PKG = "@rrlab/biome-config";
-// The installed Biome's own schema: a versioned URL drifts from `^2.0.0` and Biome flags the mismatch.
+// The installed Biome's own schema: a versioned URL drifts from the installed Biome and Biome flags the mismatch.
 const BIOME_SCHEMA = "./node_modules/@biomejs/biome/configuration_schema.json";
 const FORMAT_TIMEOUT_MS = 10_000;
 
