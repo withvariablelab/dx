@@ -9,16 +9,22 @@ const BASE = "node_modules/@rrlab/cli/lefthook/base.yml";
 const TURBOREPO = "node_modules/@rrlab/cli/lefthook/turborepo.yml";
 const GITLEAKS = "mise exec -- gitleaks git --pre-commit --staged --redact";
 
-const extendsOf = (...files: string[]) => `extends:\n${files.map((file) => `  - ${file}\n`).join("")}`;
+const yaml = (...lines: string[]) => `${lines.join("\n")}\n`;
+const extendsOf = (...files: string[]) => yaml("extends:", ...files.map((file) => `  - ${file}`));
 
 describe("the lefthook configs in @rrlab/cli/lefthook", () => {
-  let fixture: Fixture;
+  const fixtures: Fixture[] = [];
 
-  afterEach(() => fixture.cleanup());
+  afterEach(() => {
+    for (const fixture of fixtures.splice(0)) fixture.cleanup();
+  });
 
   function dump(files: FixtureFiles): string {
-    fixture = makeFixture("lefthook", files);
-    spawnSync("git", ["init", "-q"], { cwd: fixture.dir });
+    const fixture = makeFixture("lefthook", files);
+    fixtures.push(fixture);
+    const init = spawnSync("git", ["init", "-q"], { cwd: fixture.dir, encoding: "utf8" });
+    expect(init.status, init.stderr).toBe(0);
+
     const r = spawnSync(path.join(fixture.dir, "node_modules/.bin/lefthook"), ["dump"], {
       cwd: fixture.dir,
       encoding: "utf8",
@@ -61,7 +67,7 @@ describe("the lefthook configs in @rrlab/cli/lefthook", () => {
   });
 
   test("a repo adds its own jobs beside the shared ones", () => {
-    const own = [
+    const own = yaml(
       "pre-commit:",
       "  jobs:",
       "    - name: i18n",
@@ -70,8 +76,7 @@ describe("the lefthook configs in @rrlab/cli/lefthook", () => {
       "  jobs:",
       "    - name: test",
       "      run: pnpm rr test run",
-      "",
-    ].join("\n");
+    );
 
     expect(dump({ "lefthook.yml": `${extendsOf(BASE)}\n${own}` })).toMatchInlineSnapshot(`
       "extends:
@@ -100,23 +105,21 @@ describe("the lefthook configs in @rrlab/cli/lefthook", () => {
   });
 
   test("a repo's own gitleaks job merges with the shared one, and still runs when the shared file is missing", () => {
-    const own = ["pre-commit:", "  jobs:", "    - name: gitleaks", `      run: ${GITLEAKS}`, ""].join("\n");
+    const own = yaml("pre-commit:", "  jobs:", "    - name: gitleaks", `      run: ${GITLEAKS}`);
     const gitleaksJobs = (config: string) => config.match(/- name: gitleaks\n\s+run: (.+)/g);
+    const expected = [`- name: gitleaks\n      run: ${GITLEAKS}`];
 
-    expect(gitleaksJobs(dump({ "lefthook.yml": `${extendsOf(BASE)}\n${own}` }))).toEqual([
-      `- name: gitleaks\n      run: ${GITLEAKS}`,
-    ]);
-    fixture.cleanup();
+    expect(gitleaksJobs(dump({ "lefthook.yml": `${extendsOf(BASE)}\n${own}` }))).toEqual(expected);
 
     const missing = dump({ "lefthook.yml": `${extendsOf("node_modules/@rrlab/cli/lefthook/missing.yml")}\n${own}` });
-    expect(gitleaksJobs(missing)).toEqual([`- name: gitleaks\n      run: ${GITLEAKS}`]);
+    expect(gitleaksJobs(missing)).toEqual(expected);
     expect(missing).not.toContain("name: jsc");
   });
 
   test("a repo overrides a shared job from a file it lists later in extends", () => {
     const config = dump({
-      "lefthook.yml": `${extendsOf(BASE, TURBOREPO, "lefthook/test.yml")}`,
-      "lefthook/test.yml": ["pre-push:", "  jobs:", "    - name: test", "      run: pnpm test", ""].join("\n"),
+      "lefthook.yml": extendsOf(BASE, TURBOREPO, "lefthook/test.yml"),
+      "lefthook/test.yml": yaml("pre-push:", "  jobs:", "    - name: test", "      run: pnpm test"),
     });
 
     expect(config.slice(config.indexOf("pre-push:"))).toMatchInlineSnapshot(`
