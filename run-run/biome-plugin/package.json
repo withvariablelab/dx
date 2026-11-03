@@ -50,6 +50,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
+    "@rrlab/biome-config": "workspace:^",
     "@rrlab/cli": "workspace:*",
     "@rrlab/tsdown-config": "workspace:^",
     "@types/semver": "catalog:",

@@ -315,6 +315,9 @@ importers:
       '@biomejs/biome':
         specifier: 'catalog:'
         version: 2.6.4
+      '@rrlab/biome-config':
+        specifier: workspace:^
+        version: link:../biome-config
       '@rrlab/cli':
         specifier: workspace:*
         version: link:../cli

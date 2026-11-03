@@ -1,5 +1,4 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.4/schema.json",
   "files": {
     "ignoreUnknown": true
   },
@@ -19,7 +18,6 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
       "a11y": {
         "noSvgWithoutTitle": "off"
       },
