@@ -58,9 +58,9 @@
     "@rrlab/cli": "workspace:*",
     "@rrlab/tsdown-config": "workspace:^",
     "@types/semver": "catalog:",
-    "oxfmt": "0.73.0",
-    "oxlint": "1.66.0",
-    "oxlint-tsgolint": "0.25.0",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
     "semver": "catalog:"
   }
 }
