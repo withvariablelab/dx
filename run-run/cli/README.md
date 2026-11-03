@@ -87,7 +87,7 @@ The configs run through pnpm and expect:
 
 lefthook merges jobs that share a name, and the extended file wins. So your `lefthook.yml` can add jobs, or set `skip: true` on a shared job. To change what a shared job runs, put your version in a file listed after it in `extends`.
 
-lefthook skips a file in `extends` that doesn't exist, without a warning. So no shared job runs when `node_modules/@rrlab/cli` is missing, or older than 1.7.0, the first version that ships these files.
+lefthook skips a file in `extends` that doesn't exist, without a warning. So no shared job runs when `node_modules/@rrlab/cli` is missing, or older than 1.7.0, the first version that ships these files. For the same reason, the two paths and the job names (`jsc`, `tsc`, `gitleaks`, `test`) are part of `@rrlab/cli`'s interface. Renaming one is a breaking change.
 
 ## Shell completion
 
