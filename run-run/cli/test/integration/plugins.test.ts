@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { stripVTControlCharacters } from "node:util";
@@ -8,17 +8,17 @@ import { createTestCli, fixtures, makeFixture } from "#test/helpers.ts";
 const cli = createTestCli();
 
 /**
- * A fixture whose pnpm installs nothing: the plugins and their tools already
- * resolve from the workspace's node_modules. nypm calls pnpm directly only
+ * A fixture whose pnpm installs nothing, and exits with `pnpmExitCode`: the
+ * plugins and their tools already resolve from the workspace's node_modules. nypm calls pnpm directly only
  * when `corepack --version` fails, and it looks a command up in each
  * node_modules/.bin above the fixture before Node's own directory, which
  * holds the real corepack, so both stubs sit in the parent's.
  */
-function makeStubbedFixture(name: string, files: Record<string, string>): { dir: string; cleanup: () => void } {
+function makeStubbedFixture(name: string, files: Record<string, string>, pnpmExitCode = 0): { dir: string; cleanup: () => void } {
   const root = mkdtempSync(path.join(tmpdir(), "rr-stub-pm-"));
   const bin = path.join(root, "node_modules", ".bin");
   mkdirSync(bin, { recursive: true });
-  writeFileSync(path.join(bin, "pnpm"), "#!/bin/sh\nexit 0\n", { mode: 0o755 });
+  writeFileSync(path.join(bin, "pnpm"), `#!/bin/sh\nexit ${pnpmExitCode}\n`, { mode: 0o755 });
   writeFileSync(path.join(bin, "corepack"), "#!/bin/sh\nexit 1\n", { mode: 0o755 });
   const { dir } = makeFixture(name, files, { root });
   return { dir, cleanup: () => rmSync(root, { recursive: true, force: true }) };
@@ -248,6 +248,15 @@ describe("rr plugins", () => {
       expect(readFileSync(path.join(fixture.dir, "tsconfig.json"), "utf8")).toBe(tsconfig);
       const jsc = cli("jsc", { cwd: fixture.dir });
       expect(jsc.status, jsc.stdout + jsc.stderr).toBe(0);
+    });
+
+    test("a failed install marks its step failed, and configures nothing", () => {
+      fixture = makeStubbedFixture("plugins-add-no-tty-fail", { "package.json": pnpmPkg() }, 1);
+
+      const r = cli("plugins add biome", { cwd: fixture.dir });
+      expect(r.stdout + r.stderr).toContain("▲  Installing @rrlab/biome-plugin — failed");
+      expect(r.status).toBe(1);
+      expect(existsSync(path.join(fixture.dir, "run-run.config.mts"))).toBe(false);
     });
   });
 
