@@ -239,7 +239,7 @@ type DefaultCallInfo = { callee: string; hasArgs: boolean };
 function readDefaultCall(mod: ProxifiedModule): DefaultCallInfo | null {
   // biome-ignore lint/suspicious/noExplicitAny: magicast proxies are opaque
   const def = (mod.exports as any).default;
-  if (!def || def.$type !== "function-call") return null;
+  if (def?.$type !== "function-call") return null;
   const callee = def.$callee;
   if (typeof callee !== "string") return null;
   // `$args` is a ProxifiedArray (not a real Array) — guard on `.length` not `Array.isArray`.
@@ -278,7 +278,7 @@ function setCalleeName(mod: ProxifiedModule, newName: string): void {
   // biome-ignore lint/suspicious/noExplicitAny: magicast proxies expose $ast
   const def = (mod.exports as any).default;
   const ast = def?.$ast;
-  if (!ast || ast.callee?.type !== "Identifier") {
+  if (ast?.callee?.type !== "Identifier") {
     throw new Error("Cannot rename callee: default export is not a simple identifier call.");
   }
   ast.callee.name = newName;
