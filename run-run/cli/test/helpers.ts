@@ -32,8 +32,8 @@ export function createTestCli() {
 
 type FixtureFiles = Record<string, string>;
 
-export function makeFixture(name: string, files: FixtureFiles): { dir: string; cleanup: () => void } {
-  const dir = mkdtempSync(path.join(tmpdir(), `rr-${name}-`));
+export function makeFixture(name: string, files: FixtureFiles, root = tmpdir()): { dir: string; cleanup: () => void } {
+  const dir = mkdtempSync(path.join(root, `rr-${name}-`));
 
   for (const [rel, content] of Object.entries(files)) {
     const abs = path.join(dir, rel);
