@@ -1,6 +1,7 @@
 # 005: How `@rrlab/plugin-tsdown` scaffolds and unscaffolds `tsdown.config.ts`
 
 - **Date**: 2026-05-19
+- **Amended**: 2026-11-03 — magicast 0.5 writes `import { x }` with inner spaces
 - **Status**: Applied
 - **Files affected**: `run-run/tsdown-config/` (renamed from `packages/tsdown-config`), `run-run/plugin-tsdown/src/index.ts`, `run-run/plugin-tsdown/src/__tests__/install.test.ts`, all in-repo consumers of the renamed package (root + 7 packages), `decisions/005-plugin-tsdown-scaffolding.md`.
 
@@ -80,7 +81,7 @@ AST-match is robust against all three. It also mirrors `plugin-ts`'s `uninstall(
 ## Implementation notes
 
 - `magicast`'s `$callee` is a snapshot string set at proxy-creation time (no setter). To rename the callee, we mutate the underlying AST node via `def.$ast.callee.name = "..."` — `generateCode` reads from the AST, not the proxy snapshots.
-- `magicast` normalises import-statement spacing (`import {x} from "..."` without inner spaces). The user's formatter will re-apply their style on next run; same trade-off accepted by [D-004] for `comment-json`.
+- `magicast` writes the import it swaps in its own style: `import { x } from "..."`, with inner spaces since 0.5. The user's formatter will re-apply their style on next run; same trade-off accepted by [D-004] for `comment-json`.
 - The plugin reports the renamed config package version as `^0.1.0` in the install hook's `devDependencies`, matching `plugin-ts`'s placeholder for `@rrlab/ts-config`. Real version pin lands on first publish via Changesets.
 
 ## Notes for human review
