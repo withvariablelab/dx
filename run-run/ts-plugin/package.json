@@ -46,10 +46,11 @@
   },
   "peerDependencies": {
     "@rrlab/cli": "workspace:^",
-    "typescript": ">=5.0.0"
+    "typescript": ">=5.4.0"
   },
   "devDependencies": {
     "@rrlab/cli": "workspace:*",
+    "@rrlab/ts-config": "workspace:^",
     "@rrlab/tsdown-config": "workspace:^",
     "@types/semver": "catalog:",
     "semver": "catalog:",

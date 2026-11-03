@@ -436,6 +436,9 @@ importers:
       '@rrlab/cli':
         specifier: workspace:*
         version: link:../cli
+      '@rrlab/ts-config':
+        specifier: workspace:^
+        version: link:../ts-config
       '@rrlab/tsdown-config':
         specifier: workspace:^
         version: link:../tsdown-config
