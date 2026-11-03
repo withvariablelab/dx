@@ -152,8 +152,6 @@ Both support `--dry-run` (print plan, no side effects) and `--yes` (skip prompts
 
 `src/services/config-ast.ts`. Wraps `magicast` to add/remove plugin entries from `run-run.config.{ts,mts}`. Operates on the AST so user comments + formatting + non-plugin keys are preserved.
 
-`magicast` proxies for arrays are not `Array.isArray()` (they're Proxy objects). Guard on `.length` instead. There's a test for this in `src/services/__tests__/config-ast.test.ts` that exists specifically to lock the lesson down — touching `#pluginsArray` requires you to keep the guard.
-
 ## Tests
 
 - `src/**/__tests__/*.test.ts` — unit tests: no spawn, and fs only in a temp dir.

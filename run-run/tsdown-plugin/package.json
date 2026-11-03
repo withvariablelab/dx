@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@variablelab/clibuddy": "workspace:*",
-    "magicast": "0.3.5"
+    "magicast": "0.5.5"
   },
   "peerDependencies": {
     "@rrlab/cli": "workspace:^",

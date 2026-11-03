@@ -242,7 +242,6 @@ function readDefaultCall(mod: ProxifiedModule): DefaultCallInfo | null {
   if (def?.$type !== "function-call") return null;
   const callee = def.$callee;
   if (typeof callee !== "string") return null;
-  // `$args` is a ProxifiedArray (not a real Array) — guard on `.length` not `Array.isArray`.
   const args = def.$args;
   return { callee, hasArgs: !!args && args.length > 0 };
 }

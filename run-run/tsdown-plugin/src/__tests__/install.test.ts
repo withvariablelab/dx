@@ -139,12 +139,9 @@ describe("@rrlab/tsdown-plugin install()", () => {
       const op = result.files?.[0];
       if (op?.kind !== "edit-text") throw new Error("expected edit-text op");
       const input = await fs.readFile(path.join(tmpDir, "tsdown.config.ts"), "utf8");
-      const next = op.edit(input);
-      // magicast emits braces with no inner spaces; match the import shape loosely.
-      expect(next).toMatch(/import\s*\{\s*defineLibConfig\s*\}\s*from\s*["']@rrlab\/tsdown-config["']/);
-      expect(next).not.toContain(`from "tsdown"`);
-      expect(next).toContain(`defineLibConfig({`);
-      expect(next).toContain(`entry: ["src/lib.ts"]`);
+      expect(op.edit(input)).toBe(
+        `import { defineLibConfig } from "@rrlab/tsdown-config";\nexport default defineLibConfig({ entry: ["src/lib.ts"] });`,
+      );
     });
 
     it("patches a .mjs config file by extension", async () => {
@@ -294,11 +291,9 @@ describe("@rrlab/tsdown-plugin uninstall()", () => {
     const result = await uninstall(uninstallCtx());
     const op = result.files?.[0];
     if (op?.kind !== "edit-text") throw new Error("expected edit-text op");
-    const next = op.edit(original);
-    expect(next).toMatch(/import\s*\{\s*defineConfig\s*\}\s*from\s*["']tsdown["']/);
-    expect(next).not.toContain(`from "@rrlab/tsdown-config"`);
-    expect(next).toContain(`defineConfig({`);
-    expect(next).toContain(`entry: ["src/lib.ts"]`);
+    expect(op.edit(original)).toBe(
+      `import { defineConfig } from "tsdown";\n\nexport default defineConfig({ entry: ["src/lib.ts"] });`,
+    );
   });
 
   it("leaves the file alone when it doesn't use our factories", async () => {
