@@ -69,7 +69,6 @@
     "glob": "14.0.3",
     "lilconfig": "3.1.4",
     "magicast": "0.3.5",
-    "memoize": "10.2.0",
     "nypm": "0.6.12",
     "rimraf": "6.1.3"
   },

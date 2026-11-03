@@ -363,9 +363,6 @@ importers:
       magicast:
         specifier: 0.3.5
         version: 0.3.5
-      memoize:
-        specifier: 10.2.0
-        version: 10.2.0
       nypm:
         specifier: 0.6.12
         version: 0.6.12
