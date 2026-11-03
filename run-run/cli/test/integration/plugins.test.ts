@@ -8,11 +8,9 @@ import { createTestCli, type Fixture, type FixtureFiles, fixtures, makeFixture }
 const cli = createTestCli();
 
 /**
- * A fixture whose pnpm installs nothing, and exits with `pnpmExitCode`: the
- * plugins and their tools already resolve from the workspace's node_modules. nypm calls pnpm directly only
- * when `corepack --version` fails, and it looks a command up in each
- * node_modules/.bin above the fixture before Node's own directory, which
- * holds the real corepack, so both stubs sit in the parent's.
+ * A fixture whose pnpm installs nothing and exits with `pnpmExitCode`, and
+ * whose corepack fails, so that nypm calls that pnpm. Both stubs sit in the
+ * node_modules/.bin of the fixture's parent directory.
  */
 function makeStubbedFixture(name: string, files: FixtureFiles, pnpmExitCode = 0): Fixture {
   const parent = mkdtempSync(path.join(tmpdir(), "rr-stub-pm-"));
