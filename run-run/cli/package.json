@@ -63,7 +63,7 @@
     "@usage-spec/commander": "1.1.0",
     "@variablelab/clibuddy": "workspace:*",
     "@variablelab/loggy": "workspace:*",
-    "commander": "14.0.3",
+    "commander": "15.0.0",
     "comment-json": "4.2.5",
     "fast-string-width": "3.0.2",
     "glob": "13.0.6",
