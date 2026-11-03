@@ -24,7 +24,7 @@ extends:
   - node_modules/@rrlab/cli/lefthook/turborepo.yml
 ```
 
-dx's own `lefthook.yml` is exactly that. Neither file extends the other: lefthook resolves an `extends` inside an extended file from the repo's root, not from the file. The kernel stays tool-agnostic (`run-run/CLAUDE.md`). `rr` never reads these files, and their jobs call `rr` and the repo setup they assume (pnpm, mise, gitleaks, Turborepo), never a plugin's tool. Adding a plugin changes neither file.
+dx's own `lefthook.yml` is exactly that. Neither file extends the other: lefthook resolves an `extends` inside an extended file from the repo's root, not from the file. The kernel stays tool-agnostic (`run-run/CLAUDE.md`). `rr` never reads these files, and their jobs call `rr` and the repo setup they assume (pnpm, mise, gitleaks, Turborepo), never a plugin's tool. The `tsc` job's glob covers TypeScript files and tsconfigs. A repo whose type checker also reads other files, such as `.astro`, adds its own job with that glob. Adding a plugin changes neither file.
 
 ## Alternatives rejected
 

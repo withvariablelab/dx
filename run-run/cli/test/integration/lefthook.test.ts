@@ -41,7 +41,7 @@ describe("the lefthook configs in @rrlab/cli/lefthook", () => {
           - name: tsc
             run: pnpm rr tsc
             glob:
-              - '*.{ts,tsx,mts,cts,astro}'
+              - '*.{ts,tsx,mts,cts}'
               - '*tsconfig*.json'
           - name: gitleaks
             run: mise exec -- gitleaks git --pre-commit --staged --redact
@@ -87,7 +87,7 @@ describe("the lefthook configs in @rrlab/cli/lefthook", () => {
           - name: tsc
             run: pnpm rr tsc
             glob:
-              - '*.{ts,tsx,mts,cts,astro}'
+              - '*.{ts,tsx,mts,cts}'
               - '*tsconfig*.json'
           - name: gitleaks
             run: mise exec -- gitleaks git --pre-commit --staged --redact

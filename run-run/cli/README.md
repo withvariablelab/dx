@@ -65,7 +65,7 @@ When the spec is a dist-tag, `rr` resolves any `@rrlab/*-config` sibling at the 
 
 - `lefthook/base.yml` runs three jobs in parallel on each commit:
   - `rr jsc --fix-staged` on the staged files;
-  - `rr tsc` when a TypeScript, Astro or tsconfig file changes;
+  - `rr tsc` when a TypeScript file or a tsconfig changes;
   - [gitleaks](https://github.com/gitleaks/gitleaks) on the staged changes.
 - `lefthook/turborepo.yml` runs the tests of the packages Turborepo finds affected on each push. On `main`, it runs those of the packages the last commit changed.
 

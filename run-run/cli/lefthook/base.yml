@@ -8,7 +8,7 @@ pre-commit:
     - name: tsc
       run: pnpm rr tsc
       glob:
-        - "*.{ts,tsx,mts,cts,astro}"
+        - "*.{ts,tsx,mts,cts}"
         - "*tsconfig*.json"
 
     - name: gitleaks
