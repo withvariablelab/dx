@@ -1,27 +1,3 @@
-pre-commit:
-  parallel: true
-  jobs:
-    - name: jsc
-      run: pnpm rr jsc --fix-staged
-      stage_fixed: true
-
-    - name: tsc
-      run: pnpm rr tsc
-      glob:
-        - "*.{ts,tsx,mts,cts}"
-        - "*tsconfig*.json"
-
-    - name: gitleaks
-      run: mise exec -- gitleaks git --pre-commit --staged --redact
-
-pre-push:
-  jobs:
-    - name: test
-      run: |
-        branch="$(git branch --show-current)"
-
-        if [ "$branch" = "main" ]; then
-          pnpm turbo run test --filter='...[HEAD^]'
-        else
-          pnpm turbo run test --affected
-        fi
+extends:
+  - node_modules/@rrlab/cli/lefthook/base.yml
+  - node_modules/@rrlab/cli/lefthook/turborepo.yml
