@@ -2,24 +2,6 @@
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "extends": ["@rrlab/biome-config"],
   "files": {
-    "includes": [
-      "**",
-      "!vland/templates",
-      "!vland/cli/**/*.md",
-      "!pnpm-lock.yaml",
-      "!.mise/locks",
-      "!.changeset/*.md",
-      "!**/CHANGELOG.md",
-      "!**/CLI.md",
-      "!.github/workflows/pullfrog.yml"
-    ]
-  },
-  "markdown": {
-    "parser": {
-      "frontmatter": true
-    },
-    "formatter": {
-      "formatEmbeds": false
-    }
+    "includes": ["**", "!vland/templates", "!vland/cli/**/*.md", "!**/CLI.md"]
   }
 }
