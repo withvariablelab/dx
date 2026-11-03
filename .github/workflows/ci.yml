@@ -140,7 +140,7 @@ jobs:
           git config user.name "${APP_SLUG}[bot]"
           git config user.email "${user_id}+${APP_SLUG}[bot]@users.noreply.github.com"
 
-      # No NPM_TOKEN: npm trusted publishing over OIDC (npm >= 11.5.1, bundled with mise's node 24).
+      # No NPM_TOKEN: `changeset publish` runs `pnpm publish`, which does npm trusted publishing over OIDC itself.
       - name: 🚀 Release or version PR
         uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
         with:
