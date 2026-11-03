@@ -94,7 +94,17 @@ The configs run through pnpm and expect:
 - gitleaks pinned in the repo's `mise.toml`;
 - a plugin for `rr jsc` and one for `rr tsc` in `run-run.config`.
 
-lefthook merges jobs that share a name, and the extended file wins. So your `lefthook.yml` can add jobs, or set `skip: true` on a shared job. To change what a shared job runs, put your version in a file listed after it in `extends`.
+lefthook merges jobs that share a name, and the extended file wins. So your `lefthook.yml` can add jobs, or skip a shared job with `skip: true`. `lefthook validate` refuses a job without a `run`, so give it one: the shared job's `run` still wins.
+
+```yaml
+pre-commit:
+  jobs:
+    - name: tsc
+      run: pnpm rr tsc
+      skip: true
+```
+
+To change what a shared job runs, put your version in a file listed after it in `extends`.
 
 lefthook skips a file in `extends` that doesn't exist, without a warning. So no shared job runs when `node_modules/@rrlab/cli` is missing, or older than 1.7.0, the first version that ships these files. For the same reason, the two paths and the job names (`jsc`, `tsc`, `gitleaks`, `test`) are part of `@rrlab/cli`'s interface: renaming one is a breaking change. The `shared-hooks` job in your own `lefthook.yml` turns that silence into a failed commit that says to run `pnpm install`.
 
