@@ -10,7 +10,7 @@ rr plugins add oxc
 
 `rr plugins add` installs `@rrlab/oxc-plugin` and adds `oxlint`, `oxfmt` and `oxlint-tsgolint` as dev dependencies. It writes no config file: oxlint and oxfmt run with their defaults, and a project that needs to change them adds its own `.oxlintrc.json` or `.oxfmtrc.json`.
 
-It needs `@rrlab/cli`, oxlint 1 or later and oxfmt 0.67 or later. The type check also needs `oxlint-tsgolint` 0.24 or later, an optional peer.
+It needs `@rrlab/cli`, oxlint 1.30 or later and oxfmt 0.67 or later. The type check also needs `oxlint-tsgolint` 0.24 or later, an optional peer.
 
 ## What it provides
 

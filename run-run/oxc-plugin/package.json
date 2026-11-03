@@ -46,7 +46,7 @@
   "peerDependencies": {
     "@rrlab/cli": "workspace:^",
     "oxfmt": ">=0.67.0",
-    "oxlint": ">=1.0.0",
+    "oxlint": ">=1.30.0",
     "oxlint-tsgolint": ">=0.24.0"
   },
   "peerDependenciesMeta": {
