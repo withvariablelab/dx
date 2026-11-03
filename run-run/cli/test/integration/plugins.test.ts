@@ -20,7 +20,7 @@ function makeStubbedFixture(name: string, files: Record<string, string>): { dir:
   mkdirSync(bin, { recursive: true });
   writeFileSync(path.join(bin, "pnpm"), "#!/bin/sh\nexit 0\n", { mode: 0o755 });
   writeFileSync(path.join(bin, "corepack"), "#!/bin/sh\nexit 1\n", { mode: 0o755 });
-  const { dir } = makeFixture(name, files, root);
+  const { dir } = makeFixture(name, files, { root });
   return { dir, cleanup: () => rmSync(root, { recursive: true, force: true }) };
 }
 
