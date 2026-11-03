@@ -1,5 +1,11 @@
 # @rrlab/vitest-plugin
 
+## 0.3.0
+
+### Minor Changes
+
+- [#295](https://github.com/withvariablelab/dx/pull/295) [`9e360aa`](https://github.com/withvariablelab/dx/commit/9e360aa82269fc087de97cf988a68cfd5401d882) Thanks [@rqbazan](https://github.com/rqbazan)! - `rr plugins add vitest` installs Vitest 5 (`vitest@^5.0.0`); the peer range still allows Vitest 3 and 4.
+
 ## 0.2.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @rrlab/biome-config
 
+## 0.0.7
+
+### Patch Changes
+
+- [#295](https://github.com/withvariablelab/dx/pull/295) [`9e360aa`](https://github.com/withvariablelab/dx/commit/9e360aa82269fc087de97cf988a68cfd5401d882) Thanks [@rqbazan](https://github.com/rqbazan)! - The `@biomejs/biome` peer range starts at `>=2.3.0`, since Biome 2.0 to 2.2 stop on the preset's `css.parser.tailwindDirectives` with "Found an unknown key `tailwindDirectives`".
+
 ## 0.0.6
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @rrlab/tsdown-plugin
 
+## 1.3.0
+
+### Minor Changes
+
+- [#295](https://github.com/withvariablelab/dx/pull/295) [`9e360aa`](https://github.com/withvariablelab/dx/commit/9e360aa82269fc087de97cf988a68cfd5401d882) Thanks [@rqbazan](https://github.com/rqbazan)! - `rr plugins add tsdown` installs tsdown 0.23 (`tsdown@^0.23.0`) and, where the package has no `typescript`, TypeScript 7 (`typescript@^7.0.0`), and for the `lib` build it now needs a `tsconfig.json` in the package or a folder above it, which `rr plugins add ts` writes: without one it stops before changing anything.
+
+### Patch Changes
+
+- [#295](https://github.com/withvariablelab/dx/pull/295) [`9e360aa`](https://github.com/withvariablelab/dx/commit/9e360aa82269fc087de97cf988a68cfd5401d882) Thanks [@rqbazan](https://github.com/rqbazan)! - With `magicast` 0.5, the `tsdown.config` that `rr plugins add tsdown` or `rr plugins remove tsdown` patches gets its import written with spaces inside the braces, as in `import { defineLibConfig } from "@rrlab/tsdown-config"`.
+
 ## 1.2.2
 
 ### Patch Changes

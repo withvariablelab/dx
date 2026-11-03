@@ -1,5 +1,15 @@
 # @rrlab/ts-plugin
 
+## 1.3.0
+
+### Minor Changes
+
+- [#295](https://github.com/withvariablelab/dx/pull/295) [`9e360aa`](https://github.com/withvariablelab/dx/commit/9e360aa82269fc087de97cf988a68cfd5401d882) Thanks [@rqbazan](https://github.com/rqbazan)! - `rr plugins add ts` installs TypeScript 7 (`typescript@^7.0.0`), which `rr tsc` runs, and the `typescript` peer range starts at `>=5.4.0`, the first TypeScript that accepts the `@rrlab/ts-config` presets the plugin's `tsconfig.json` extends.
+
+### Patch Changes
+
+- [#295](https://github.com/withvariablelab/dx/pull/295) [`9e360aa`](https://github.com/withvariablelab/dx/commit/9e360aa82269fc087de97cf988a68cfd5401d882) Thanks [@rqbazan](https://github.com/rqbazan)! - The plugin reads the `biome.json` or `tsconfig.json` it decides to edit or delete with `comment-json` 5.
+
 ## 1.2.2
 
 ### Patch Changes

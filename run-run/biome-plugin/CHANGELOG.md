@@ -1,5 +1,13 @@
 # @rrlab/biome-plugin
 
+## 1.2.3
+
+### Patch Changes
+
+- [#295](https://github.com/withvariablelab/dx/pull/295) [`9e360aa`](https://github.com/withvariablelab/dx/commit/9e360aa82269fc087de97cf988a68cfd5401d882) Thanks [@rqbazan](https://github.com/rqbazan)! - The `@biomejs/biome` peer range starts at `>=2.3.0`, the first Biome that loads the `@rrlab/biome-config` preset the plugin's `biome.json` extends, and `rr plugins add biome` installs `@biomejs/biome@^2.6.0`.
+
+- [#295](https://github.com/withvariablelab/dx/pull/295) [`9e360aa`](https://github.com/withvariablelab/dx/commit/9e360aa82269fc087de97cf988a68cfd5401d882) Thanks [@rqbazan](https://github.com/rqbazan)! - The plugin reads the `biome.json` or `tsconfig.json` it decides to edit or delete with `comment-json` 5.
+
 ## 1.2.2
 
 ### Patch Changes

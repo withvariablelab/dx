@@ -1,5 +1,15 @@
 # @rrlab/cli
 
+## 1.7.0
+
+### Minor Changes
+
+- [#295](https://github.com/withvariablelab/dx/pull/295) [`9e360aa`](https://github.com/withvariablelab/dx/commit/9e360aa82269fc087de97cf988a68cfd5401d882) Thanks [@rqbazan](https://github.com/rqbazan)! - `@rrlab/cli` ships two lefthook configs for a repo to extend: `lefthook/base.yml` runs `rr jsc --fix-staged`, `rr tsc` and gitleaks over the staged changes on each commit, and `lefthook/turborepo.yml` runs the affected packages' tests on each push.
+
+### Patch Changes
+
+- [#295](https://github.com/withvariablelab/dx/pull/295) [`9e360aa`](https://github.com/withvariablelab/dx/commit/9e360aa82269fc087de97cf988a68cfd5401d882) Thanks [@rqbazan](https://github.com/rqbazan)! - `@rrlab/cli` moves to `@clack/prompts` 1 (a select prompt shows how to navigate it, and a failed install step is marked with ▲), `nypm` 0.6.12, `lilconfig` 3.1.4, `commander` 15 (its "too many arguments" error lists the extra arguments), `glob` 14 (`rr clean` deletes the paths `--dry-run` lists), `comment-json` 5 (`rr plugins add` keeps the blank lines of a JSON file it edits) and `magicast` 0.5, and drops `memoize`, which it never imported.
+
 ## 1.6.0
 
 ### Minor Changes
