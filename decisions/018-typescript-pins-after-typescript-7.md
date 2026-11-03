@@ -1,7 +1,7 @@
 # 018: Which TypeScript major does each plugin install, now that TypeScript 7 is out?
 
 - **Date**: 2026-11-03
-- **Status**: Applied
+- **Status**: Pending human review
 - **Files affected**: `run-run/ts-plugin/src/tool-versions.ts`, `run-run/tsdown-plugin/src/tool-versions.ts`, `run-run/tsdown-plugin/src/__tests__/pack.test.ts`, `run-run/tsdown-plugin/package.json`, `run-run/astro-plugin/src/tool-versions.ts`, `run-run/astro-plugin/package.json`
 
 ## Context
@@ -11,7 +11,7 @@ Three plugins install `typescript` through `rr plugins add`: ts, tsdown and astr
 ## Options considered
 
 - **A**: One major for all three — every pin stays `^6.0.0` until `astro check` supports 7.
-- **B**: Each plugin installs the newest major its tool runs on — ts and tsdown `^7.0.0`, astro `^6.0.0`. This is what the design review recommended.
+- **B**: Each plugin installs the newest major its tool runs on — ts and tsdown `^7.0.0`, astro `^6.0.0`. `arch-critic` recommended it on 2026-11-02.
 - **C**: As B, but tsdown keeps `^6.0.0` — ts `^7.0.0`, tsdown `^6.0.0`, astro `^6.0.0` with the `typescript` peer `^5.0.0 || ^6.0.0`.
 
 ## Decision: Option C
@@ -28,6 +28,7 @@ tsdown is where B breaks. tsdown-plugin never overwrites an existing `typescript
 
 ## Notes for human review
 
+- C departs from `arch-critic`'s B, for the tsdown build above; no human has confirmed it yet.
 - The order of `rr plugins add` decides a package's TypeScript. astro after tsdown leaves `^6.0.0`. ts writes `^7.0.0` wherever it runs, so a tsdown package that adds ts moves to 7, and it then has the tsconfig.json that tsgo needs, unless it declines the one ts offers to write. tsdown after ts keeps the `^7.0.0` it finds.
 - When `astro check` supports TypeScript 7, astro moves its pin and its `typescript` peer, and its dev TypeScript goes to the catalog's.
 - When tsdown-plugin writes a tsconfig.json, or tsgo stops needing one, tsdown moves to `^7.0.0`, and its dev TypeScript goes back to the catalog's.
