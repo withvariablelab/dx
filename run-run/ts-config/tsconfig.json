@@ -1,0 +1,3 @@
+{
+  "extends": ["@rrlab/ts-config/no-dom/lib"]
+}

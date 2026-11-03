@@ -58,17 +58,17 @@ type JsonEdit =
 ```
 
 - **Paths use JSON Pointer (RFC 6901)** — standard `"/extends"`, `"/compilerOptions/strict"`. Devs with JSON Patch experience recognise it.
-- **Ops are NOT RFC 6902** — RFC 6902 ops (`add` / `replace`) fail on path-condition mismatches. Our use cases need *idempotent* merge semantics (the plugin can't know the file's state when constructing the patch), which `set` with `mode` + `include` / `exclude` express directly.
+- **Ops are NOT RFC 6902** — RFC 6902 ops (`add` / `replace`) fail on path-condition mismatches. Our use cases need _idempotent_ merge semantics (the plugin can't know the file's state when constructing the patch), which `set` with `mode` + `include` / `exclude` express directly.
 - **Symmetric pairs**: `set` / `unset`, `include` / `exclude`. The uninstall hook produces the inverse ops to undo install.
 
 ## Disaggregation of the shared config packages
 
 The old `@vlandoss/config` package bundled both the TS presets and the Biome preset. Splitting them matches the all-peer model — one shared config package per tool, opt-in alongside its plugin:
 
-| Before | After |
-|---|---|
-| `@vlandoss/config/ts/<preset>` | `@rrlab/ts-config/<preset>` (`run-run/ts-config/`) |
-| `@vlandoss/config/biome` | `@rrlab/biome-config` (`run-run/biome-config/`) |
+| Before                                    | After                                                                                        |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `@vlandoss/config/ts/<preset>`            | `@rrlab/ts-config/<preset>` (`run-run/ts-config/`)                                           |
+| `@vlandoss/config/biome`                  | `@rrlab/biome-config` (`run-run/biome-config/`)                                              |
 | `@vlandoss/config/lefthook/turborepo.yml` | inlined into the monorepo's `lefthook.yml` (it was monorepo plumbing, not a per-tool preset) |
 
 `packages/config/` deleted. `@rrlab/*-config` packages declare their tool as a `peerDependency` (semantic — the JSON schema URL / compiler options are version-coupled) even though `rr plugins add` handles the install automatically. The peer keeps the contract honest for users who install the config package directly.

@@ -40,8 +40,9 @@ jobs:
           persist-credentials: false
 
       - name: 🛠️ Setup mise
-        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+        uses: jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e # v5.2.3
         with:
+          version: 2026.10.19
           install: true
           cache: true
 
@@ -57,18 +58,44 @@ jobs:
       - name: 🔨 Build
         run: pnpm build
 
-  # The ruleset requires a check named "Test": this job reports the whole matrix under that name.
+  secrets:
+    name: Scan for secrets
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: 🛠️ Setup mise
+        uses: jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e # v5.2.3
+        with:
+          version: 2026.10.19
+          install_args: gitleaks
+          cache: true
+
+      - name: 🔐 Scan the new commits
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: gitleaks git --redact --verbose --log-opts="$BASE_SHA..$HEAD_SHA"
+
+  # The ruleset requires a check named "Test": this job reports the whole matrix and the secret scan under that name.
   test:
     name: Test
     runs-on: ubuntu-latest
-    needs: test-node
+    needs: [test-node, secrets]
     if: ${{ always() }}
     permissions: {}
     steps:
-      - name: ✅ Every Node version passed
+      - name: ✅ Every Node version passed and no secret leaked
         env:
-          RESULT: ${{ needs.test-node.result }}
-        run: test "$RESULT" = "success"
+          TESTS: ${{ needs.test-node.result }}
+          SECRETS: ${{ needs.secrets.result }}
+        run: test "$TESTS" = "success" && test "$SECRETS" = "success"
 
   release:
     name: Release
@@ -82,7 +109,7 @@ jobs:
       # vland-bot, not GITHUB_TOKEN, so CI runs on the version PR.
       - name: 🔑 Mint vland-bot token
         id: app-token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           client-id: ${{ vars.VLAND_BOT_CLIENT_ID }}
           private-key: ${{ secrets.VLAND_BOT_PRIVATE_KEY }}
@@ -95,8 +122,9 @@ jobs:
           persist-credentials: false
 
       - name: 🛠️ Setup mise
-        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+        uses: jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e # v5.2.3
         with:
+          version: 2026.10.19
           install: true
           cache: true
 
@@ -112,7 +140,7 @@ jobs:
           git config user.name "${APP_SLUG}[bot]"
           git config user.email "${user_id}+${APP_SLUG}[bot]@users.noreply.github.com"
 
-      # No NPM_TOKEN: npm trusted publishing over OIDC (npm >= 11.5.1, bundled with mise's node 24).
+      # No NPM_TOKEN: `changeset publish` runs `pnpm publish`, which does npm trusted publishing over OIDC itself.
       - name: 🚀 Release or version PR
         uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
         with:
@@ -141,8 +169,9 @@ jobs:
           persist-credentials: false
 
       - name: 🛠️ Setup mise
-        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+        uses: jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e # v5.2.3
         with:
+          version: 2026.10.19
           install: true
           cache: true
 

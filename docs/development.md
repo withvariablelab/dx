@@ -14,7 +14,7 @@ The workspace is pnpm, the tasks run through [Turborepo](https://turborepo.com),
 
 ## Setup
 
-[mise](https://mise.jdx.dev) pins Node 24, pnpm and [usage](https://usage.jdx.dev) in `mise.toml`, locked in `mise.lock`. It also puts `node_modules/.bin` on the `PATH`, so `rr` and `vland` run by name.
+[mise](https://mise.jdx.dev) 2026.10.19 or later pins Node 24, pnpm 12, [usage](https://usage.jdx.dev) and [gitleaks](https://github.com/gitleaks/gitleaks) in `mise.toml`, locked in `mise.lock`. It also puts `node_modules/.bin` on the `PATH`, so `rr` and `vland` run by name.
 
 ```sh
 git clone git@github.com:withvariablelab/dx.git
@@ -23,7 +23,7 @@ mise install
 pnpm install
 ```
 
-`pnpm install` also installs the git hooks, through lefthook.
+`pnpm install` also installs the git hooks: lefthook's postinstall writes them. With `CI` set, that postinstall skips them, so after a `CI=1 pnpm install` run `pnpm lefthook install` to add them.
 
 The published packages declare `engines.node` as `>=22.18.0`, except `@rrlab/biome-config` and `@rrlab/ts-config`, which hold only JSON presets and declare none. `mise.floor.toml` pins that floor, and `MISE_ENV=floor` runs the repo on it, as CI does:
 
@@ -51,8 +51,8 @@ In the repo, `pnpm rr` and `pnpm vland`, or `rr` and `vland` with mise, run each
 
 ## CI
 
-- **On each pull request to `main`:** CI runs `pnpm install --frozen-lockfile`, `pnpm rr check`, `pnpm test` and `pnpm build`, once on the Node floor in `mise.floor.toml` and once on the version in `mise.toml`. The required `Test` check passes when both do. Workflow audit runs [zizmor](https://docs.zizmor.sh) on every workflow in the repo, including those the vland templates generate.
-- **Git hooks** ([lefthook](https://lefthook.dev), in `lefthook/turborepo.yml`): on commit, `rr jscheck --fix-staged` on the staged files and, when TypeScript changed, `tscheck` on the changed packages and their dependents; on push, the tests of the affected packages.
+- **On each pull request to `main`:** CI sets up mise 2026.10.19 and the locked tools with [mise-action](https://github.com/jdx/mise-action), then runs `pnpm install --frozen-lockfile`, `pnpm rr check`, `pnpm test` and `pnpm build`, once on the Node floor in `mise.floor.toml` and once on the version in `mise.toml`. Beside them, gitleaks scans the pull request's commits for secrets. The required `Test` check passes when all three do. Workflow audit runs [zizmor](https://docs.zizmor.sh) on every workflow in the repo, including those the vland templates generate.
+- **Git hooks** ([lefthook](https://lefthook.dev)): `lefthook.yml` extends the two configs that `@rrlab/cli` ships, `run-run/cli/lefthook/base.yml` and `run-run/cli/lefthook/turborepo.yml`, and its own `shared-hooks` job fails a commit, saying to run `pnpm install`, when they are missing from `node_modules`. Their jobs are listed in [the cli's README](../run-run/cli/README.md#git-hooks). `lefthook/turborepo.yml` is not dx's: it holds the hooks that other repos fetch remotely.
 - **Every Monday:** `pnpm audit` on the lockfile, which keeps an issue labeled `dependency-audit` open while it finds known vulnerabilities (Dependency audit).
 
 ## Preview releases

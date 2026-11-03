@@ -1,6 +1,7 @@
 # 005: How `@rrlab/plugin-tsdown` scaffolds and unscaffolds `tsdown.config.ts`
 
 - **Date**: 2026-05-19
+- **Amended**: 2026-11-03 — magicast 0.5 writes `import { x }` with inner spaces
 - **Status**: Applied
 - **Files affected**: `run-run/tsdown-config/` (renamed from `packages/tsdown-config`), `run-run/plugin-tsdown/src/index.ts`, `run-run/plugin-tsdown/src/__tests__/install.test.ts`, all in-repo consumers of the renamed package (root + 7 packages), `decisions/005-plugin-tsdown-scaffolding.md`.
 
@@ -50,6 +51,7 @@ AST-match is robust against all three. It also mirrors `plugin-ts`'s `uninstall(
 ## Install/uninstall semantics
 
 ### Install
+
 - **No file** → prompt to scaffold, prompt preset, emit `create` FileOp.
 - **File exists, interactive** → prompt `patch` / `skip` / `overwrite`:
   - **patch** → `edit-text` op that uses `magicast` to (1) verify the default export is `defineConfig(...)` from `tsdown` or one of our factories, (2) swap the import to `@rrlab/tsdown-config`, (3) rename the callee. **Refuses to mutate** non-`defineConfig` default exports — throws a clear error rather than guess.
@@ -58,6 +60,7 @@ AST-match is robust against all three. It also mirrors `plugin-ts`'s `uninstall(
 - **File exists, `--yes` / non-interactive** → `skip`. We deliberately diverge from `plugin-ts`'s default-to-patch policy ([D-004]'s "notes for human review") because rewriting a TS module non-interactively is higher-risk than patching JSON; the user can opt in by re-running interactively.
 
 ### Uninstall (symmetric)
+
 - Always emits `removeDependencies: ["tsdown", "@rrlab/tsdown-config"]`.
 - If no file → no FileOp.
 - If file's default export is a no-arg call to one of our factories from `@rrlab/tsdown-config` → emit `delete`.
@@ -78,7 +81,7 @@ AST-match is robust against all three. It also mirrors `plugin-ts`'s `uninstall(
 ## Implementation notes
 
 - `magicast`'s `$callee` is a snapshot string set at proxy-creation time (no setter). To rename the callee, we mutate the underlying AST node via `def.$ast.callee.name = "..."` — `generateCode` reads from the AST, not the proxy snapshots.
-- `magicast` normalises import-statement spacing (`import {x} from "..."` without inner spaces). The user's formatter will re-apply their style on next run; same trade-off accepted by [D-004] for `comment-json`.
+- `magicast` writes the import it swaps in its own style: `import { x } from "..."`, with inner spaces since 0.5. The user's formatter will re-apply their style on next run; same trade-off accepted by [D-004] for `comment-json`.
 - The plugin reports the renamed config package version as `^0.1.0` in the install hook's `devDependencies`, matching `plugin-ts`'s placeholder for `@rrlab/ts-config`. Real version pin lands on first publish via Changesets.
 
 ## Notes for human review

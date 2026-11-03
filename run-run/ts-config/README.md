@@ -20,7 +20,7 @@ pnpm add -D @rrlab/ts-config typescript @types/node
 
 Then point your `tsconfig.json` at one of the presets below.
 
-It needs TypeScript 5 or later: the presets use compiler options that are stable since TypeScript 5. The `no-dom` presets also need `@types/node` 20 or later, an optional peer.
+It needs TypeScript 5.4 or later: the presets set `module` to `preserve`, which TypeScript 5.4 added. The `no-dom` presets also need `@types/node` 20 or later, an optional peer.
 
 ## Presets
 

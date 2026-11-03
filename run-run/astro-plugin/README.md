@@ -14,8 +14,8 @@ It needs `@rrlab/cli`, Astro 5 or later, `@astrojs/check` 0.9 or later, and Type
 
 ## What it provides
 
-| Capability | Commands |
-| --- | --- |
+| Capability  | Commands                                                             |
+| ----------- | -------------------------------------------------------------------- |
 | `typecheck` | `rr tsc` (workspace-aware in monorepos), `rr check`, `rr tsc doctor` |
 
 `rr tsc` runs `astro check` in an Astro package: one with an `astro.config.*`, or with `astro` in its `dependencies`, `devDependencies` or `peerDependencies`. It reports the same diagnostics as `astro check`, for `.astro` files and plain `.ts` files alike, and fails when `astro check` exits non-zero, which it does on any error by default.

@@ -18,18 +18,18 @@ If you find yourself tempted to add a `pnpm <script>` that exists only to call `
 
 ## What's here
 
-| Path | npm name | Role |
-|---|---|---|
-| `cli/` | `@rrlab/cli` | The kernel. Commander program, plugin registry, `rr` bin. Deep-dive in `cli/CLAUDE.md`. |
-| `astro-plugin/` | `@rrlab/astro-plugin` | `tsc` via `astro check`, which covers `.astro` and `.ts` files alike. A monorepo's packages without Astro get `tsc --noEmit`. |
-| `biome-plugin/` | `@rrlab/biome-plugin` | `lint` + `format` + `jsc` via Biome. |
-| `oxc-plugin/` | `@rrlab/oxc-plugin` | `lint` (oxlint) + `format` (oxfmt) + `tsc` (oxlint type-aware). `jsc` is composed by the kernel. |
-| `ts-plugin/` | `@rrlab/ts-plugin` | `tsc` (TypeScript). Has `install()` that scaffolds `tsconfig.json` from a preset. |
-| `tsdown-plugin/` | `@rrlab/tsdown-plugin` | `pack` (tsdown). |
-| `vitest-plugin/` | `@rrlab/vitest-plugin` | `test` (vitest), a streaming passthrough — see `decisions/016-vitest-passthrough-plugin.md`. |
-| `ts-config/` | `@rrlab/ts-config` | Shared tsconfig presets, listed in [its README](ts-config/README.md#presets). |
-| `biome-config/` | `@rrlab/biome-config` | Shared biome preset. |
-| `tsdown-config/` | `@rrlab/tsdown-config` | Shared tsdown configuration helpers. |
+| Path             | npm name               | Role                                                                                                                          |
+| ---------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `cli/`           | `@rrlab/cli`           | The kernel. Commander program, plugin registry, `rr` bin. Deep-dive in `cli/CLAUDE.md`.                                       |
+| `astro-plugin/`  | `@rrlab/astro-plugin`  | `tsc` via `astro check`, which covers `.astro` and `.ts` files alike. A monorepo's packages without Astro get `tsc --noEmit`. |
+| `biome-plugin/`  | `@rrlab/biome-plugin`  | `lint` + `format` + `jsc` via Biome.                                                                                          |
+| `oxc-plugin/`    | `@rrlab/oxc-plugin`    | `lint` (oxlint) + `format` (oxfmt) + `tsc` (oxlint type-aware). `jsc` is composed by the kernel.                              |
+| `ts-plugin/`     | `@rrlab/ts-plugin`     | `tsc` (TypeScript). Has `install()` that scaffolds `tsconfig.json` from a preset.                                             |
+| `tsdown-plugin/` | `@rrlab/tsdown-plugin` | `pack` (tsdown).                                                                                                              |
+| `vitest-plugin/` | `@rrlab/vitest-plugin` | `test` (vitest), a streaming passthrough — see `decisions/016-vitest-passthrough-plugin.md`.                                  |
+| `ts-config/`     | `@rrlab/ts-config`     | Shared tsconfig presets, listed in [its README](ts-config/README.md#presets).                                                 |
+| `biome-config/`  | `@rrlab/biome-config`  | Shared biome preset.                                                                                                          |
+| `tsdown-config/` | `@rrlab/tsdown-config` | Shared tsdown configuration helpers.                                                                                          |
 
 The contract is **kernel-internal** (see root CLAUDE.md). The official plugins in the table above are the only consumers we commit to. Evolving the contract is fine as long as you propagate to every one of them.
 
@@ -37,7 +37,7 @@ Don't write how many official plugins there are anywhere — say "every official
 
 ## The kernel is tool-agnostic — non-negotiable
 
-`@rrlab/cli` knows nothing about specific tools (biome, typescript, oxc, tsdown). It only ships **tool-shape-agnostic** things: the plugin contract (`Plugin`, `PluginServices`), capability interfaces (`Linter`, `Formatter`, `TypeChecker`, `Packer`, `StaticChecker`, `TestRunner`), the file-ops engine (`FileOp`, `JsonEdit`), `ToolService` as a base class, the command tree.
+`@rrlab/cli` knows nothing about specific tools (biome, typescript, oxc, tsdown). It only ships **tool-shape-agnostic** things: the plugin contract (`Plugin`, `PluginServices`), capability interfaces (`Linter`, `Formatter`, `TypeChecker`, `Packer`, `StaticChecker`, `TestRunner`), the file-ops engine (`FileOp`, `JsonEdit`), `ToolService` as a base class, the command tree, and the lefthook configs in `cli/lefthook/`. Those configs call `rr` and the repo setup they assume (pnpm, mise, gitleaks, Turborepo), never a plugin's tool directly (`decisions/019-shared-git-hooks.md`).
 
 **Each plugin owns its tool.** That includes:
 
@@ -54,7 +54,7 @@ This rules out, for example:
 - Kernel-side coherence tests that read tool details (versions, peer ranges, config shapes) from plugin `package.json` files.
 - Kernel-exported types that name specific tools (`Biome*`, `Tsdown*`, etc.).
 
-The line is tool details, not plugin names: kernel tests may check the *set* of official plugins. `cli/test/integration/plugin-discipline.test.ts` matches the `run-run/*-plugin/` dirs against `PLUGINS_DIRECTORY` and scans their source for SDK discipline; `plugin-docs.test.ts` matches the docs' plugin tables against it. Neither reads anything about a plugin's tool, so adding a plugin still touches the kernel only at its `PLUGINS_DIRECTORY` entry (step 8 of the checklist below).
+The line is tool details, not plugin names: kernel tests may check the _set_ of official plugins. `cli/test/integration/plugin-discipline.test.ts` matches the `run-run/*-plugin/` dirs against `PLUGINS_DIRECTORY` and scans their source for SDK discipline; `plugin-docs.test.ts` matches the docs' plugin tables against it. Neither reads anything about a plugin's tool, so adding a plugin still touches the kernel only at its `PLUGINS_DIRECTORY` entry (step 8 of the checklist below).
 
 Per-plugin duplication of small constants (the `TOOL_VERSIONS` shape repeated in every plugin) is the right shape — duplication across plugins is cheap; coupling the kernel to tool details is not.
 

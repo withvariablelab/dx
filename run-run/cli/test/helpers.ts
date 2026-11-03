@@ -30,10 +30,21 @@ export function createTestCli() {
   };
 }
 
-type FixtureFiles = Record<string, string>;
+export type FixtureFiles = Record<string, string>;
 
-export function makeFixture(name: string, files: FixtureFiles): { dir: string; cleanup: () => void } {
-  const dir = mkdtempSync(path.join(tmpdir(), `rr-${name}-`));
+export type Fixture = { dir: string; cleanup: () => void };
+
+type FixtureOptions = {
+  parent?: string;
+  linkNodeModules?: boolean;
+};
+
+export function makeFixture(
+  name: string,
+  files: FixtureFiles,
+  { parent = tmpdir(), linkNodeModules = true }: FixtureOptions = {},
+): Fixture {
+  const dir = mkdtempSync(path.join(parent, `rr-${name}-`));
 
   for (const [rel, content] of Object.entries(files)) {
     const abs = path.join(dir, rel);
@@ -43,7 +54,7 @@ export function makeFixture(name: string, files: FixtureFiles): { dir: string; c
 
   // Expose the workspace's `node_modules` to the fixture so any
   // `run-run.config.mts` it writes can resolve `@rrlab/*-plugin` packages.
-  symlinkSync(WORKSPACE_NODE_MODULES, path.join(dir, "node_modules"), "dir");
+  if (linkNodeModules) symlinkSync(WORKSPACE_NODE_MODULES, path.join(dir, "node_modules"), "dir");
 
   return {
     dir,

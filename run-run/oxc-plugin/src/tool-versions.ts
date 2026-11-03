@@ -1,5 +1,5 @@
 export const TOOL_VERSIONS = {
-  oxlint: { install: "^1.0.0" },
-  oxfmt: { install: "^0.73.0" },
-  "oxlint-tsgolint": { install: "^7.0.2004" },
+  oxlint: { install: "^1.90.0" },
+  oxfmt: { install: "^0.75.0" },
+  "oxlint-tsgolint": { install: "^7.0.2005" },
 } as const;

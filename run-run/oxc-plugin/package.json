@@ -46,7 +46,7 @@
   "peerDependencies": {
     "@rrlab/cli": "workspace:^",
     "oxfmt": ">=0.67.0",
-    "oxlint": ">=1.0.0",
+    "oxlint": ">=1.30.0",
     "oxlint-tsgolint": ">=0.24.0"
   },
   "peerDependenciesMeta": {
@@ -57,10 +57,10 @@
   "devDependencies": {
     "@rrlab/cli": "workspace:*",
     "@rrlab/tsdown-config": "workspace:^",
-    "@types/semver": "^7.7.1",
-    "oxfmt": "0.73.0",
-    "oxlint": "1.66.0",
-    "oxlint-tsgolint": "0.25.0",
-    "semver": "^7.8.1"
+    "@types/semver": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+    "semver": "catalog:"
   }
 }

@@ -14,7 +14,7 @@ export async function withSpinner<T>(message: string, fn: () => Promise<T>): Pro
     sp.stop(message);
     return result;
   } catch (err) {
-    sp.stop(`${message} — failed`, 1);
+    sp.error(`${message} — failed`);
     throw err;
   }
 }

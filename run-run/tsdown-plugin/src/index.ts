@@ -19,6 +19,7 @@ export { TOOL_VERSIONS } from "./tool-versions.ts";
 const FROM = import.meta.url;
 const CONFIG_PKG = "@rrlab/tsdown-config";
 const DEFAULT_CONFIG_FILENAME = "tsdown.config.ts";
+const TSCONFIG = "tsconfig.json";
 const CONFIG_FILENAMES = [
   "tsdown.config.ts",
   "tsdown.config.mts",
@@ -34,11 +35,17 @@ type FactoryName = "defineLibConfig" | "defineBinConfig";
 type PresetInfo = {
   factory: FactoryName;
   label: string;
+  /**
+   * The preset writes declarations, which tsdown on TypeScript 7 writes with
+   * tsgo, from the tsconfig.json it finds from the package up. ts-plugin owns
+   * that file, so install() refuses such a preset without one (decisions/018).
+   */
+  needsTsconfig: boolean;
 };
 
 const PRESETS: Record<Preset, PresetInfo> = {
-  lib: { factory: "defineLibConfig", label: "Library (dts on, entry src/index.ts)" },
-  bin: { factory: "defineBinConfig", label: "CLI / Node binary (entry src/run.ts)" },
+  lib: { factory: "defineLibConfig", label: "Library (dts on, entry src/index.ts)", needsTsconfig: true },
+  bin: { factory: "defineBinConfig", label: "CLI / Node binary (entry src/run.ts)", needsTsconfig: false },
 };
 const DEFAULT_PRESET: Preset = "lib";
 const tsdownColor = colorize("#FF7E18");
@@ -85,7 +92,12 @@ export async function install(ctx: InstallContext): Promise<InstallResult> {
     presets: PRESETS,
     defaultPreset: DEFAULT_PRESET,
   });
-  const { factory } = PRESETS[preset];
+  const { factory, needsTsconfig } = PRESETS[preset];
+  if (needsTsconfig && !(await hasTsconfig(ctx.appPkg.dirPath))) {
+    throw new Error(
+      `The ${preset} build writes declarations, which need a ${TSCONFIG}, and there is none in ${ctx.appPkg.dirPath} or a folder above it. Run \`rr plugins add ts\`, which writes one, or add your own, then add tsdown again.`,
+    );
+  }
 
   const devDependencies: Record<string, string> = {
     ...toolDependencies(ctx.appPkg),
@@ -165,14 +177,29 @@ export async function uninstall(ctx: UninstallContext): Promise<UninstallResult>
 async function findExistingConfig(cwd: string): Promise<string | null> {
   for (const name of CONFIG_FILENAMES) {
     const candidate = path.join(cwd, name);
-    try {
-      await fs.access(candidate);
-      return candidate;
-    } catch {
-      /* try next */
-    }
+    if (await pathExists(candidate)) return candidate;
   }
   return null;
+}
+
+/** Looks for a tsconfig.json from `dir` up to the filesystem root, as tsdown does. */
+async function hasTsconfig(dir: string): Promise<boolean> {
+  let current = dir;
+  while (!(await pathExists(path.join(current, TSCONFIG)))) {
+    const parent = path.dirname(current);
+    if (parent === current) return false;
+    current = parent;
+  }
+  return true;
+}
+
+async function pathExists(p: string): Promise<boolean> {
+  try {
+    await fs.access(p);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function renderScaffold(factory: FactoryName): string {
@@ -239,10 +266,9 @@ type DefaultCallInfo = { callee: string; hasArgs: boolean };
 function readDefaultCall(mod: ProxifiedModule): DefaultCallInfo | null {
   // biome-ignore lint/suspicious/noExplicitAny: magicast proxies are opaque
   const def = (mod.exports as any).default;
-  if (!def || def.$type !== "function-call") return null;
+  if (def?.$type !== "function-call") return null;
   const callee = def.$callee;
   if (typeof callee !== "string") return null;
-  // `$args` is a ProxifiedArray (not a real Array) — guard on `.length` not `Array.isArray`.
   const args = def.$args;
   return { callee, hasArgs: !!args && args.length > 0 };
 }
@@ -278,7 +304,7 @@ function setCalleeName(mod: ProxifiedModule, newName: string): void {
   // biome-ignore lint/suspicious/noExplicitAny: magicast proxies expose $ast
   const def = (mod.exports as any).default;
   const ast = def?.$ast;
-  if (!ast || ast.callee?.type !== "Identifier") {
+  if (ast?.callee?.type !== "Identifier") {
     throw new Error("Cannot rename callee: default export is not a simple identifier call.");
   }
   ast.callee.name = newName;

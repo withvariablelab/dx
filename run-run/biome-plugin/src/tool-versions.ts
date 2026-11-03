@@ -1,3 +1,3 @@
 export const TOOL_VERSIONS = {
-  "@biomejs/biome": { install: "^2.0.0" },
+  "@biomejs/biome": { install: "^2.6.0" },
 } as const;

@@ -10,7 +10,7 @@
     "test:integration": "turbo test:integration"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.4",
+    "@biomejs/biome": "catalog:",
     "@changesets/changelog-github": "1.0.1",
     "@changesets/cli": "3.0.3",
     "@rrlab/astro-plugin": "workspace:*",
@@ -23,16 +23,22 @@
     "@rrlab/tsdown-config": "workspace:*",
     "@rrlab/tsdown-plugin": "workspace:*",
     "@rrlab/vitest-plugin": "workspace:*",
-    "@types/node": "latest",
+    "@types/node": "catalog:",
     "@variablelab/vland": "workspace:*",
-    "lefthook": "2.1.1",
-    "oxfmt": "^0.73.0",
-    "oxlint": "^1.0.0",
-    "oxlint-tsgolint": "^0.25.0",
-    "tsdown": "0.22.0",
-    "turbo": "2.11.9",
-    "typescript": "^6.0.3",
-    "vitest": "^4.0.0"
+    "lefthook": "2.2.2",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+    "tsdown": "catalog:",
+    "turbo": "2.11.10",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
-  "packageManager": "pnpm@10.30.3"
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^12.16.1",
+      "onFail": "error"
+    }
+  }
 }

@@ -2,12 +2,27 @@ packages:
   - shared/*
   - run-run/*
   - vland/cli
-onlyBuiltDependencies:
-  - "@biomejs/biome"
-  - lefthook
 
-# Supply-chain cooldown: malicious releases are usually pulled within 24h; pattern excludes need pnpm >= 10.17.
+catalog:
+  "@biomejs/biome": 2.6.4
+  "@types/node": 26.6.6
+  "@types/semver": 7.8.0
+  oxfmt: 0.75.0
+  oxlint: 1.90.0
+  oxlint-tsgolint: 7.0.2005
+  semver: 7.8.5
+  tsdown: 0.23.4
+  typescript: 7.0.2
+  vitest: 5.0.5
+
+allowBuilds:
+  lefthook: true
+
+sideEffectsCache: false
+
+# Supply-chain cooldown: malicious releases are usually pulled within 24h.
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   - "@variablelab/*"
   - "@rrlab/*"
+  - "@variableland/*"

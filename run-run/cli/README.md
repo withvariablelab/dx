@@ -32,14 +32,14 @@ The [CLI reference](https://github.com/withvariablelab/dx/blob/main/run-run/cli/
 
 `rr` is a microkernel: every tool lives in its own `@rrlab/<tool>-plugin` package. The official plugins are:
 
-| Plugin   | Wraps                                                                                                          | Install                  |
-| -------- | -------------------------------------------------------------------------------------------------------------- | ------------------------ |
-| `astro`  | [astro check](https://docs.astro.build/en/reference/cli-reference/#astro-check)                                | `rr plugins add astro`   |
-| `biome`  | [Biome](https://biomejs.dev)                                                                                   | `rr plugins add biome`   |
-| `oxc`    | [oxlint](https://oxc.rs/docs/guide/usage/linter.html) + [oxfmt](https://oxc.rs/docs/guide/usage/formatter.html) | `rr plugins add oxc`     |
-| `ts`     | [tsc](https://www.typescriptlang.org)                                                                          | `rr plugins add ts`      |
-| `tsdown` | [tsdown](https://tsdown.dev)                                                                                   | `rr plugins add tsdown`  |
-| `vitest` | [vitest](https://vitest.dev)                                                                                   | `rr plugins add vitest`  |
+| Plugin   | Wraps                                                                                                           | Install                 |
+| -------- | --------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| `astro`  | [astro check](https://docs.astro.build/en/reference/cli-reference/#astro-check)                                 | `rr plugins add astro`  |
+| `biome`  | [Biome](https://biomejs.dev)                                                                                    | `rr plugins add biome`  |
+| `oxc`    | [oxlint](https://oxc.rs/docs/guide/usage/linter.html) + [oxfmt](https://oxc.rs/docs/guide/usage/formatter.html) | `rr plugins add oxc`    |
+| `ts`     | [tsc](https://www.typescriptlang.org)                                                                           | `rr plugins add ts`     |
+| `tsdown` | [tsdown](https://tsdown.dev)                                                                                    | `rr plugins add tsdown` |
+| `vitest` | [vitest](https://vitest.dev)                                                                                    | `rr plugins add vitest` |
 
 Install one with:
 
@@ -58,6 +58,45 @@ rr plugins add biome@^1.0.0        # explicit version range (sibling configs sti
 ```
 
 When the spec is a dist-tag, `rr` resolves any `@rrlab/*-config` sibling at the same tag, falling back to `latest` if the registry doesn't have the sibling at that tag.
+
+## Git hooks
+
+`@rrlab/cli` ships two [lefthook](https://lefthook.dev) configs that a repo extends:
+
+- `lefthook/base.yml` runs three jobs in parallel on each commit:
+  - `rr jsc --fix-staged` on the staged files;
+  - `rr tsc` when a TypeScript file or a tsconfig changes;
+  - [gitleaks](https://github.com/gitleaks/gitleaks) on the staged changes.
+- `lefthook/turborepo.yml` runs the tests of the packages Turborepo finds affected on each push. On `main`, it runs those of the packages the last commit changed.
+
+A Turborepo monorepo's `lefthook.yml`:
+
+```yaml
+extends:
+  - node_modules/@rrlab/cli/lefthook/base.yml
+  - node_modules/@rrlab/cli/lefthook/turborepo.yml
+
+pre-commit:
+  jobs:
+    - name: shared-hooks
+      run: |
+        if [ ! -f node_modules/@rrlab/cli/lefthook/base.yml ]; then
+          echo "@rrlab/cli's git hooks are missing from node_modules: run pnpm install, then commit again."
+          exit 1
+        fi
+```
+
+A repo without Turborepo extends `base.yml`, keeps the `shared-hooks` job, and writes its own `pre-push` jobs.
+
+The configs run through pnpm and expect:
+
+- `@rrlab/cli` and `lefthook` in the root `package.json`, with lefthook allowed to run its install script, so `pnpm install` installs the hooks;
+- gitleaks pinned in the repo's `mise.toml`;
+- a plugin for `rr jsc` and one for `rr tsc` in `run-run.config`.
+
+lefthook merges jobs that share a name, and the extended file wins. So your `lefthook.yml` can add jobs, or set `skip: true` on a shared job. To change what a shared job runs, put your version in a file listed after it in `extends`.
+
+lefthook skips a file in `extends` that doesn't exist, without a warning. So no shared job runs when `node_modules/@rrlab/cli` is missing, or older than 1.7.0, the first version that ships these files. For the same reason, the two paths and the job names (`jsc`, `tsc`, `gitleaks`, `test`) are part of `@rrlab/cli`'s interface: renaming one is a breaking change. The `shared-hooks` job in your own `lefthook.yml` turns that silence into a failed commit that says to run `pnpm install`.
 
 ## Shell completion
 
@@ -131,7 +170,7 @@ brew install usage
 
 ## Troubleshooting
 
-To enable debug mode, set the `DEBUG` environment variable to `run-run:*` before running *any* command.
+To enable debug mode, set the `DEBUG` environment variable to `run-run:*` before running _any_ command.
 
 ```sh
 DEBUG=run-run:* pnpm rr <command>

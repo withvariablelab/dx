@@ -56,6 +56,11 @@ function stubPrompts(overrides: Partial<ClackPrompts> = {}): ClackPrompts {
 }
 
 describe("@rrlab/tsdown-plugin install()", () => {
+  // The lib build needs one; the "tsconfig.json" cases below remove it.
+  beforeEach(async () => {
+    await fs.writeFile(path.join(tmpDir, "tsconfig.json"), "{}\n");
+  });
+
   describe("non-interactive (--yes / nonInteractive)", () => {
     it("creates tsdown.config.ts with the default preset (lib) when no file exists", async () => {
       const result = await install(installCtx());
@@ -139,12 +144,9 @@ describe("@rrlab/tsdown-plugin install()", () => {
       const op = result.files?.[0];
       if (op?.kind !== "edit-text") throw new Error("expected edit-text op");
       const input = await fs.readFile(path.join(tmpDir, "tsdown.config.ts"), "utf8");
-      const next = op.edit(input);
-      // magicast emits braces with no inner spaces; match the import shape loosely.
-      expect(next).toMatch(/import\s*\{\s*defineLibConfig\s*\}\s*from\s*["']@rrlab\/tsdown-config["']/);
-      expect(next).not.toContain(`from "tsdown"`);
-      expect(next).toContain(`defineLibConfig({`);
-      expect(next).toContain(`entry: ["src/lib.ts"]`);
+      expect(op.edit(input)).toBe(
+        `import { defineLibConfig } from "@rrlab/tsdown-config";\nexport default defineLibConfig({ entry: ["src/lib.ts"] });`,
+      );
     });
 
     it("patches a .mjs config file by extension", async () => {
@@ -260,6 +262,38 @@ describe("@rrlab/tsdown-plugin install()", () => {
     });
   });
 
+  describe("tsconfig.json (tsdown writes TypeScript 7 declarations only from one)", () => {
+    const interactive = { force: false, yes: false, nonInteractive: false };
+
+    it("refuses the lib build when there is none in the package or a folder above it", async () => {
+      await fs.rm(path.join(tmpDir, "tsconfig.json"));
+      const result = install(installCtx());
+      await expect(result).rejects.toThrow(`which need a tsconfig.json, and there is none in ${tmpDir} or a folder`);
+      await expect(result).rejects.toThrow("Run `rr plugins add ts`, which writes one");
+    });
+
+    it("takes the one in a folder above the package, as tsdown does", async () => {
+      const dirPath = path.join(tmpDir, "packages/lib");
+      await fs.mkdir(dirPath, { recursive: true });
+      const result = await install(installCtx({ appPkg: { dirPath, packageJson: {} } as Pkg }));
+      expect(result.files?.[0]?.kind).toBe("create");
+    });
+
+    it("doesn't need one for the bin build, which writes no declarations", async () => {
+      await fs.rm(path.join(tmpDir, "tsconfig.json"));
+      const select = vi.fn(async () => "bin" as unknown) as unknown as ClackPrompts["select"];
+      const result = await install(installCtx({ flags: interactive, prompts: stubPrompts({ select }) }));
+      expect(result.files?.[0]?.kind).toBe("create");
+    });
+
+    it("doesn't check when the package keeps its own tsdown config", async () => {
+      await fs.rm(path.join(tmpDir, "tsconfig.json"));
+      await fs.writeFile(path.join(tmpDir, "tsdown.config.ts"), "// custom\n");
+      const result = await install(installCtx());
+      expect(result.files).toBeUndefined();
+    });
+  });
+
   describe("release-driven sibling resolution", () => {
     it("threads ctx.release.resolve into @rrlab/tsdown-config's install spec", async () => {
       const release = new ReleaseService("pr-226", { fetcher: async () => new Response("{}", { status: 200 }) });
@@ -294,11 +328,9 @@ describe("@rrlab/tsdown-plugin uninstall()", () => {
     const result = await uninstall(uninstallCtx());
     const op = result.files?.[0];
     if (op?.kind !== "edit-text") throw new Error("expected edit-text op");
-    const next = op.edit(original);
-    expect(next).toMatch(/import\s*\{\s*defineConfig\s*\}\s*from\s*["']tsdown["']/);
-    expect(next).not.toContain(`from "@rrlab/tsdown-config"`);
-    expect(next).toContain(`defineConfig({`);
-    expect(next).toContain(`entry: ["src/lib.ts"]`);
+    expect(op.edit(original)).toBe(
+      `import { defineConfig } from "tsdown";\n\nexport default defineConfig({ entry: ["src/lib.ts"] });`,
+    );
   });
 
   it("leaves the file alone when it doesn't use our factories", async () => {

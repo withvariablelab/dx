@@ -33,16 +33,25 @@
   "publishConfig": {
     "access": "public"
   },
+  "scripts": {
+    "test": "vitest run"
+  },
   "dependencies": {
     "@total-typescript/tsconfig": "1.0.4"
   },
   "peerDependencies": {
-    "typescript": ">=5.0.0",
+    "typescript": ">=5.4.0",
     "@types/node": ">=20"
   },
   "peerDependenciesMeta": {
     "@types/node": {
       "optional": true
     }
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "typescript-5.4": "npm:typescript@5.4.5",
+    "vitest": "catalog:"
   }
 }

@@ -135,9 +135,7 @@ export class ConfigAstService {
   #pluginsArray(mod: ProxifiedModule): unknown[] | undefined {
     // biome-ignore lint/suspicious/noExplicitAny: magicast proxies are opaque
     const def = (mod.exports as any).default;
-    if (!def || def.$type !== "function-call") return undefined;
-    // `def.$args` is a magicast ProxifiedArray (a Proxy, not a real Array) —
-    // `Array.isArray` returns false here, so guard on `.length` instead.
+    if (def?.$type !== "function-call") return undefined;
     const args = def.$args;
     if (!args || args.length === 0) return undefined;
     const opts = args[0];

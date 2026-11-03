@@ -44,5 +44,5 @@ Add an entry every time you invoke `arch-critic` and apply its recommendation. D
 
 - **Applied**: code is in main, tests green, decision is in effect.
 - **Pending human review**: applied but the implementer flagged it as uncertain.
-- **Overridden**: a previously *Applied* decision that a human later disagreed with; superseded by a newer decision. Either delete the file (preferred when the override fully replaces it) or leave the file and add a "→ See NNN" pointer at the top.
-- **Rejected**: a proposal that was reviewed (typically by `arch-critic`) and never applied. Keep the file when the *reasoning behind the rejection* is the part worth preserving — i.e. when "we considered X and chose not to do it because Y" is load-bearing for future readers tempted by the same idea. Add a "→ Rejected — see NNN" header pointing to whatever decision (if any) absorbed the substantive parts.
+- **Overridden**: a previously _Applied_ decision that a human later disagreed with; superseded by a newer decision. Either delete the file (preferred when the override fully replaces it) or leave the file and add a "→ See NNN" pointer at the top.
+- **Rejected**: a proposal that was reviewed (typically by `arch-critic`) and never applied. Keep the file when the _reasoning behind the rejection_ is the part worth preserving — i.e. when "we considered X and chose not to do it because Y" is load-bearing for future readers tempted by the same idea. Add a "→ Rejected — see NNN" header pointing to whatever decision (if any) absorbed the substantive parts.

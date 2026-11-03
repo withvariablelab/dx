@@ -6,7 +6,7 @@
 
 ## Context
 
-The 4 official plugins reimplement the same housekeeping in subtly different ways: an `only`-filter block, a bin-probe try/catch, an "exists → ask → patch/skip/overwrite" scaffold-decision dialog, and a preset-pick prompt. The duplication is not just LOC — it's *prompt strings*, *error message formats*, and *decision branches* that drift independently. Decision 007 endorsed the `only`-block duplication on the principle that "duplication across plugins is cheap"; user feedback after 007 reframes the goal as "the plugin pattern should be hard to break" — under that framing, duplication-as-copy-paste is the failure mode, not the solution.
+The 4 official plugins reimplement the same housekeeping in subtly different ways: an `only`-filter block, a bin-probe try/catch, an "exists → ask → patch/skip/overwrite" scaffold-decision dialog, and a preset-pick prompt. The duplication is not just LOC — it's _prompt strings_, _error message formats_, and _decision branches_ that drift independently. Decision 007 endorsed the `only`-block duplication on the principle that "duplication across plugins is cheap"; user feedback after 007 reframes the goal as "the plugin pattern should be hard to break" — under that framing, duplication-as-copy-paste is the failure mode, not the solution.
 
 A prior draft (`decisions/008-plugin-sdk-split.md`, rejected by arch-critic on 2026-05-21) proposed splitting the contract into a new `@rrlab/plugin` package. The split was rejected because the enforcement gain comes from `definePlugin`'s shape, not from the package boundary — and the split incurred a deviation from decision 001, a version-skew vector, and an "external API" signal that contradicts the kernel-internal contract posture. This decision keeps the contract inside `@rrlab/cli/plugin` and captures the enforcement directly there.
 
@@ -18,7 +18,7 @@ A prior draft (`decisions/008-plugin-sdk-split.md`, rejected by arch-critic on 2
 
 ## Decision: Option B
 
-The user-stated goal is "the plugin pattern should be hard to break." That outcome comes from making the canonical path the *only* path: the SDK accepts data and runs the procedure, instead of accepting a procedure and trusting the plugin to follow convention. Centralisation lives inside `@rrlab/cli/plugin` — same subpath, no new package, no decision 001 churn. The cost is a one-time rewrite of the 4 plugins; the payoff is that the next plugin (5th, 6th, ...) cannot diverge on `only`, bin-probe, scaffold prompts, or preset selection even if the author wanted to — those shapes are typed into `definePlugin`'s signature.
+The user-stated goal is "the plugin pattern should be hard to break." That outcome comes from making the canonical path the _only_ path: the SDK accepts data and runs the procedure, instead of accepting a procedure and trusting the plugin to follow convention. Centralisation lives inside `@rrlab/cli/plugin` — same subpath, no new package, no decision 001 churn. The cost is a one-time rewrite of the 4 plugins; the payoff is that the next plugin (5th, 6th, ...) cannot diverge on `only`, bin-probe, scaffold prompts, or preset selection even if the author wanted to — those shapes are typed into `definePlugin`'s signature.
 
 ### Sub-decisions
 
@@ -31,7 +31,7 @@ The user-stated goal is "the plugin pattern should be hard to break." That outco
    Run: rr plugins add <name>  (or: pnpm add -D <pkg>...)
    ```
 
-   `<name>` comes from the plugin definition. No per-plugin override needed on day 1 — the oxc case (3 services backed by 2 distinct bins) resolves cleanly via deduplication on `pkg`. If a future plugin demonstrates that introspection-from-services is genuinely insufficient, *then* add a `requires?: string[]` override; do not add it preemptively.
+   `<name>` comes from the plugin definition. No per-plugin override needed on day 1 — the oxc case (3 services backed by 2 distinct bins) resolves cleanly via deduplication on `pkg`. If a future plugin demonstrates that introspection-from-services is genuinely insufficient, _then_ add a `requires?: string[]` override; do not add it preemptively.
 
 3. **`decideScaffold(ctx, opts)` helper.** Centralises the "file exists? ask user → patch/skip/overwrite vs. create" dialog used by biome, ts, and tsdown today. Signature:
 
@@ -65,9 +65,9 @@ The user-stated goal is "the plugin pattern should be hard to break." That outco
 
    Honours `--yes` / non-interactive (returns `defaultPreset`).
 
-5. **Plugin authoring rule: plugins do NOT use `ctx.prompts` directly.** All user interaction in `install()` / `uninstall()` flows through `decideScaffold` and `pickPreset`. New helpers added here as new patterns emerge. This is the rule that makes new plugins boring to write *and* impossible to drift.
+5. **Plugin authoring rule: plugins do NOT use `ctx.prompts` directly.** All user interaction in `install()` / `uninstall()` flows through `decideScaffold` and `pickPreset`. New helpers added here as new patterns emerge. This is the rule that makes new plugins boring to write _and_ impossible to drift.
 
-6. **Enforce rule #5 mechanically.** A new test `run-run/cli/test/integration/plugin-discipline.test.ts` scans each `run-run/*-plugin/src/**/*.ts` and asserts no AST node matches `ctx.prompts.<anything>` outside of allowlisted helper internals. Cheap, fast, and locks the discipline in for the lifetime of the repo. This is *not* tautological — it asserts about plugin code, which we explicitly want to constrain.
+6. **Enforce rule #5 mechanically.** A new test `run-run/cli/test/integration/plugin-discipline.test.ts` scans each `run-run/*-plugin/src/**/*.ts` and asserts no AST node matches `ctx.prompts.<anything>` outside of allowlisted helper internals. Cheap, fast, and locks the discipline in for the lifetime of the repo. This is _not_ tautological — it asserts about plugin code, which we explicitly want to constrain.
 
 7. **`pathExists` is dropped as a shared helper.** It's `try { await fs.access(p); return true } catch { return false }` — 4 LOC, fine inline. Or move to `@vlandoss/clibuddy` if it accumulates a third user. Don't add it to `@rrlab/cli/plugin`; the SDK should host things that enforce shape, not random fs utilities.
 
@@ -75,7 +75,7 @@ The user-stated goal is "the plugin pattern should be hard to break." That outco
 
 9. **`apiVersion` stays at 1.** Internal contract evolution; no version bump from the registry's perspective.
 
-10. **Decision 007 is marked Superseded by 009.** The honest reading is that centralising the `only`-filter inside `definePlugin` *is* substantively what 007 rejected as Option B (kernel helper) — the SDK didn't exist as a concept then. 007's typed-against-plugin-kinds requirement is preserved (via `keyof` in this design), but the "where the code lives" answer changes. A pointer header is added to `decisions/007-per-plugin-only-option.md`.
+10. **Decision 007 is marked Superseded by 009.** The honest reading is that centralising the `only`-filter inside `definePlugin` _is_ substantively what 007 rejected as Option B (kernel helper) — the SDK didn't exist as a concept then. 007's typed-against-plugin-kinds requirement is preserved (via `keyof` in this design), but the "where the code lives" answer changes. A pointer header is added to `decisions/007-per-plugin-only-option.md`.
 
 11. **Decision 008 is deleted.** Per `decisions/README.md`'s "delete is preferred when the override fully replaces it" — 008's substance lives in 009 (declarative shape) without 008's topology change.
 
@@ -145,7 +145,7 @@ The user-stated goal is "the plugin pattern should be hard to break." That outco
 
 ## Alternatives rejected
 
-- **Option A** (status quo + opt-in helpers): Doesn't address the goal. As long as the helpers are opt-in, "each plugin does whatever it wants" survives — a plugin can skip them. The whole value of this decision is that the canonical path is the *only* path.
+- **Option A** (status quo + opt-in helpers): Doesn't address the goal. As long as the helpers are opt-in, "each plugin does whatever it wants" survives — a plugin can skip them. The whole value of this decision is that the canonical path is the _only_ path.
 - **Option C** (`@rrlab/plugin` package + redesign): Rejected via 008's arch-critic review. The enforcement gain comes from `definePlugin`'s shape, not from a package boundary. The split's costs (decision 001 deviation, version-skew vector, "external API" signalling against kernel-internal posture) are not bought by any concrete enforcement improvement. 009 captures the substance without the topology change.
 - **Day-1 `requires?` override on bin-probe**: Rejected as preemptive. The oxc case resolves via `pkg`-dedup. Add the override only when a future plugin proves it necessary.
 - **`pathExists` as a shared helper in `@rrlab/cli/plugin`**: Rejected. The SDK should host things that enforce shape; `pathExists` is a generic fs util. Drop it (use `fs.access` inline) or move it to `@vlandoss/clibuddy` if a third user emerges.

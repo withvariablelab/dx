@@ -1,0 +1,11 @@
+pre-push:
+  jobs:
+    - name: test
+      run: |
+        branch="$(git branch --show-current)"
+
+        if [ "$branch" = "main" ]; then
+          pnpm turbo run test --filter='...[HEAD^]'
+        else
+          pnpm turbo run test --affected
+        fi

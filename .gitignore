@@ -178,3 +178,7 @@ dist
 # Bun
 
 *.bun-build
+
+# mise
+.mise/*
+!.mise/locks/

@@ -6,7 +6,7 @@
 
 ## Context
 
-Every existing capability (`lint`/`format`/`tsc`/`pack`) **captures** its tool's output (`ToolService.runReport` → `runCaptured` → task-board) and returns a `RunReport`. A test runner is categorically different: it needs an inherited TTY for watch mode, colors, interactive UI, and to forward `--help` to the tool. So `rr test` is a *streaming* passthrough that returns an exit code, not a `RunReport`. `arch-critic` was consulted on how this fits the kernel.
+Every existing capability (`lint`/`format`/`tsc`/`pack`) **captures** its tool's output (`ToolService.runReport` → `runCaptured` → task-board) and returns a `RunReport`. A test runner is categorically different: it needs an inherited TTY for watch mode, colors, interactive UI, and to forward `--help` to the tool. So `rr test` is a _streaming_ passthrough that returns an exit code, not a `RunReport`. `arch-critic` was consulted on how this fits the kernel.
 
 ## Options considered
 
@@ -19,10 +19,10 @@ Every existing capability (`lint`/`format`/`tsc`/`pack`) **captures** its tool's
 ## Decision
 
 - **A → A1.** `ToolService.runStreamed(command, args, opts): Promise<number>` wraps the existing streaming `shell.run()` (`stdio:"inherit"`, `verbose:false`). It's as tool-agnostic as `runReport`; any future passthrough reuses it. A2 contradicts D-013's streaming-vs-capture split; A3 duplicates `getBinDir`/`doctor`.
-- **B → B1 (diverges from arch-critic, which recommended B2).** The capability key is `test`. Capability keys are the command's resolution key (`getServiceOrThrow(cap)`); a generic `run` would collide across unrelated passthrough plugins (two providers → `MultipleProvidersError`). The streaming *mechanism* is shared via `runStreamed`; the capability *name* stays 1:1 with the command, matching `lint`/`format`/`pack`.
+- **B → B1 (diverges from arch-critic, which recommended B2).** The capability key is `test`. Capability keys are the command's resolution key (`getServiceOrThrow(cap)`); a generic `run` would collide across unrelated passthrough plugins (two providers → `MultipleProvidersError`). The streaming _mechanism_ is shared via `runStreamed`; the capability _name_ stays 1:1 with the command, matching `lint`/`format`/`pack`.
 - **C → C1.** Keep `doctor` (inherited from `ToolService`). `rr test doctor` reserves only the bare leading `doctor` token; `rr test run doctor` still forwards. Documented in the command description.
 - **D → D1.** The plugin owns `resolveEnvFile`: defaults are first-existing-wins (`.env.test`, then `.env`); an explicit override that's missing throws (typo protection). The `.env` semantics and the node `--env-file=` mechanism stay in the plugin (kernel-agnostic).
-- **E → rename to `--env <path>`** (user-confirmed). Node has an early scanner that consumes `--env-file`/`--env-file-if-exists` from the *entire* argv regardless of position; since the `rr` bin runs `node src/run.ts "$@"`, a user's `--env-file` token is eaten by the `rr` process before Commander runs. `--env` is not a node flag (and vitest uses `--environment`, not `--env`), so it passes through cleanly. The plugin still spawns the child as `node --env-file=<resolved> <vitest-bin>` (there the flag precedes the script, so it's a legit node flag).
+- **E → rename to `--env <path>`** (user-confirmed). Node has an early scanner that consumes `--env-file`/`--env-file-if-exists` from the _entire_ argv regardless of position; since the `rr` bin runs `node src/run.ts "$@"`, a user's `--env-file` token is eaten by the `rr` process before Commander runs. `--env` is not a node flag (and vitest uses `--environment`, not `--env`), so it passes through cleanly. The plugin still spawns the child as `node --env-file=<resolved> <vitest-bin>` (there the flag precedes the script, so it's a legit node flag).
 
 ## Alternatives rejected
 

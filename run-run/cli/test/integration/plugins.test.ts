@@ -1,29 +1,32 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { stripVTControlCharacters } from "node:util";
 import { afterEach, describe, expect, test } from "vitest";
-import { createTestCli, fixtures, makeFixture } from "#test/helpers.ts";
+import { createTestCli, type Fixture, type FixtureFiles, fixtures, makeFixture } from "#test/helpers.ts";
 
 const cli = createTestCli();
 
 /**
- * A pnpm that installs nothing, first on PATH: the plugins and their tools
- * already resolve from the workspace's node_modules. nypm only calls pnpm
- * directly when `corepack --version` fails.
+ * A fixture whose pnpm installs nothing and exits with `pnpmExitCode`, and
+ * whose corepack fails, so that nypm calls that pnpm. Both stubs sit in the
+ * node_modules/.bin of the fixture's parent directory.
  */
-function stubPackageManager(dir: string): NodeJS.ProcessEnv {
-  const bin = path.join(dir, ".stub-bin");
-  mkdirSync(bin);
-  writeFileSync(path.join(bin, "pnpm"), "#!/bin/sh\nexit 0\n", { mode: 0o755 });
+function makeStubbedFixture(name: string, files: FixtureFiles, pnpmExitCode = 0): Fixture {
+  const parent = mkdtempSync(path.join(tmpdir(), "rr-stub-pm-"));
+  const bin = path.join(parent, "node_modules", ".bin");
+  mkdirSync(bin, { recursive: true });
+  writeFileSync(path.join(bin, "pnpm"), `#!/bin/sh\nexit ${pnpmExitCode}\n`, { mode: 0o755 });
   writeFileSync(path.join(bin, "corepack"), "#!/bin/sh\nexit 1\n", { mode: 0o755 });
-  return { PATH: `${bin}${path.delimiter}${process.env.PATH}` };
+  const { dir } = makeFixture(name, files, { parent });
+  return { dir, cleanup: () => rmSync(parent, { recursive: true, force: true }) };
 }
 
 const pnpmPkg = (extra: Record<string, unknown> = {}) =>
   `${JSON.stringify({ name: "rr-test-fixture", version: "0.0.0", private: true, ...extra, packageManager: "pnpm@10.30.3" }, null, 2)}\n`;
 
 describe("rr plugins", () => {
-  let fixture: { dir: string; cleanup: () => void };
+  let fixture: Fixture;
 
   afterEach(() => fixture?.cleanup());
 
@@ -153,13 +156,11 @@ describe("rr plugins", () => {
   // The test runner's stdin and stdout are pipes, like an agent's or CI's.
   describe("add without a TTY", () => {
     test("takes the defaults, and what it writes passes `rr jsc`", () => {
-      fixture = makeFixture("plugins-add-no-tty", {
-        ".gitignore": "node_modules\n.stub-bin\n",
+      fixture = makeStubbedFixture("plugins-add-no-tty", {
+        ".gitignore": "node_modules\n",
         "package.json": pnpmPkg(),
       });
-      const env = stubPackageManager(fixture.dir);
-
-      const r = cli("plugins add biome", { cwd: fixture.dir, env });
+      const r = cli("plugins add biome", { cwd: fixture.dir });
       expect(r.stdout + r.stderr).toContain("Created biome.json");
       expect(r.status).toBe(0);
 
@@ -175,13 +176,13 @@ describe("rr plugins", () => {
     });
 
     test("patches an existing biome.json into one that passes `rr jsc`", () => {
-      fixture = makeFixture("plugins-add-no-tty-patch", {
-        ".gitignore": "node_modules\n.stub-bin\n",
+      fixture = makeStubbedFixture("plugins-add-no-tty-patch", {
+        ".gitignore": "node_modules\n",
         "package.json": pnpmPkg(),
         "biome.json": `{\n  "formatter": { "indentStyle": "space" },\n  "files": { "includes": ["**", "!dist"] }\n}\n`,
       });
 
-      const r = cli("plugins add biome", { cwd: fixture.dir, env: stubPackageManager(fixture.dir) });
+      const r = cli("plugins add biome", { cwd: fixture.dir });
       expect(r.stdout + r.stderr).toContain("Edited biome.json");
       expect(r.status).toBe(0);
 
@@ -201,11 +202,11 @@ describe("rr plugins", () => {
     });
 
     test("ts picks the React preset for a package that depends on react", () => {
-      fixture = makeFixture("plugins-add-no-tty-react", {
+      fixture = makeStubbedFixture("plugins-add-no-tty-react", {
         "package.json": pnpmPkg({ dependencies: { react: "^19.0.0" } }),
       });
 
-      const r = cli("plugins add ts", { cwd: fixture.dir, env: stubPackageManager(fixture.dir) });
+      const r = cli("plugins add ts", { cwd: fixture.dir });
       expect(r.status).toBe(0);
 
       const tsconfig = JSON.parse(readFileSync(path.join(fixture.dir, "tsconfig.json"), "utf8"));
@@ -213,15 +214,14 @@ describe("rr plugins", () => {
     });
 
     test("biome again with --force leaves biome.json byte-identical", () => {
-      fixture = makeFixture("plugins-add-no-tty-force", {
-        ".gitignore": "node_modules\n.stub-bin\n",
+      fixture = makeStubbedFixture("plugins-add-no-tty-force", {
+        ".gitignore": "node_modules\n",
         "package.json": pnpmPkg(),
       });
-      const env = stubPackageManager(fixture.dir);
-      expect(cli("plugins add biome", { cwd: fixture.dir, env }).status).toBe(0);
+      expect(cli("plugins add biome", { cwd: fixture.dir }).status).toBe(0);
       const biomeJson = readFileSync(path.join(fixture.dir, "biome.json"), "utf8");
 
-      const r = cli("plugins add biome --force", { cwd: fixture.dir, env });
+      const r = cli("plugins add biome --force", { cwd: fixture.dir });
       expect(r.stdout + r.stderr).toContain("No changes for biome.json");
       expect(r.status).toBe(0);
 
@@ -232,21 +232,29 @@ describe("rr plugins", () => {
 
     test("ts with --force leaves a tsconfig.json that already extends the preset byte-identical", () => {
       const tsconfig = `{\n  "extends": "@rrlab/ts-config/no-dom/app",\n  "compilerOptions": { "lib": ["ES2022"] },\n  "include": ["src"]\n}\n`;
-      fixture = makeFixture("plugins-add-no-tty-ts-force", {
-        ".gitignore": "node_modules\n.stub-bin\n",
+      fixture = makeStubbedFixture("plugins-add-no-tty-ts-force", {
+        ".gitignore": "node_modules\n",
         "package.json": pnpmPkg(),
         "tsconfig.json": tsconfig,
       });
-      const env = stubPackageManager(fixture.dir);
-      expect(cli("plugins add biome", { cwd: fixture.dir, env }).status).toBe(0);
+      expect(cli("plugins add biome", { cwd: fixture.dir }).status).toBe(0);
 
-      const r = cli("plugins add ts --force", { cwd: fixture.dir, env });
+      const r = cli("plugins add ts --force", { cwd: fixture.dir });
       expect(r.stdout + r.stderr).toContain("No changes for tsconfig.json");
       expect(r.status).toBe(0);
 
       expect(readFileSync(path.join(fixture.dir, "tsconfig.json"), "utf8")).toBe(tsconfig);
       const jsc = cli("jsc", { cwd: fixture.dir });
       expect(jsc.status, jsc.stdout + jsc.stderr).toBe(0);
+    });
+
+    test("a failed install marks its step failed, and configures nothing", () => {
+      fixture = makeStubbedFixture("plugins-add-no-tty-fail", { "package.json": pnpmPkg() }, 1);
+
+      const r = cli("plugins add biome", { cwd: fixture.dir });
+      expect(r.stdout + r.stderr).toContain("▲  Installing @rrlab/biome-plugin — failed");
+      expect(r.status).toBe(1);
+      expect(existsSync(path.join(fixture.dir, "run-run.config.mts"))).toBe(false);
     });
   });
 
