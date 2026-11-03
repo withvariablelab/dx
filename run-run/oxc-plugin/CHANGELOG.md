@@ -1,5 +1,11 @@
 # @rrlab/oxc-plugin
 
+## 1.3.0
+
+### Minor Changes
+
+- [#295](https://github.com/withvariablelab/dx/pull/295) [`9e360aa`](https://github.com/withvariablelab/dx/commit/9e360aa82269fc087de97cf988a68cfd5401d882) Thanks [@rqbazan](https://github.com/rqbazan)! - `rr plugins add oxc` installs `oxlint@^1.90.0`, `oxfmt@^0.75.0` and `oxlint-tsgolint@^7.0.2005`, and the `oxlint` peer range starts at `>=1.30.0`, the first oxlint with the `--type-check` flag that `rr tsc` passes.
+
 ## 1.2.2
 
 ### Patch Changes

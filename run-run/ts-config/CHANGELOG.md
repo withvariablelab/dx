@@ -1,5 +1,11 @@
 # @rrlab/ts-config
 
+## 0.0.6
+
+### Patch Changes
+
+- [#295](https://github.com/withvariablelab/dx/pull/295) [`9e360aa`](https://github.com/withvariablelab/dx/commit/9e360aa82269fc087de97cf988a68cfd5401d882) Thanks [@rqbazan](https://github.com/rqbazan)! - The `typescript` peer range starts at `>=5.4.0`, since TypeScript 5.0 to 5.3 reject the presets' `module: "preserve"` with TS6046.
+
 ## 0.0.5
 
 ### Patch Changes

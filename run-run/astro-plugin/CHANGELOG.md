@@ -1,5 +1,11 @@
 # @rrlab/astro-plugin
 
+## 0.1.3
+
+### Patch Changes
+
+- [#295](https://github.com/withvariablelab/dx/pull/295) [`9e360aa`](https://github.com/withvariablelab/dx/commit/9e360aa82269fc087de97cf988a68cfd5401d882) Thanks [@rqbazan](https://github.com/rqbazan)! - `rr plugins add astro` installs `@astrojs/check@^0.9.12`.
+
 ## 0.1.2
 
 ### Patch Changes
