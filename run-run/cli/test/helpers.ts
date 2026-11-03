@@ -30,19 +30,21 @@ export function createTestCli() {
   };
 }
 
-type FixtureFiles = Record<string, string>;
+export type FixtureFiles = Record<string, string>;
+
+export type Fixture = { dir: string; cleanup: () => void };
 
 type FixtureOptions = {
-  root?: string;
+  parent?: string;
   linkNodeModules?: boolean;
 };
 
 export function makeFixture(
   name: string,
   files: FixtureFiles,
-  { root = tmpdir(), linkNodeModules = true }: FixtureOptions = {},
-): { dir: string; cleanup: () => void } {
-  const dir = mkdtempSync(path.join(root, `rr-${name}-`));
+  { parent = tmpdir(), linkNodeModules = true }: FixtureOptions = {},
+): Fixture {
+  const dir = mkdtempSync(path.join(parent, `rr-${name}-`));
 
   for (const [rel, content] of Object.entries(files)) {
     const abs = path.join(dir, rel);

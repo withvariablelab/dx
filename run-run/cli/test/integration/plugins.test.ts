@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { stripVTControlCharacters } from "node:util";
 import { afterEach, describe, expect, test } from "vitest";
-import { createTestCli, fixtures, makeFixture } from "#test/helpers.ts";
+import { createTestCli, type Fixture, type FixtureFiles, fixtures, makeFixture } from "#test/helpers.ts";
 
 const cli = createTestCli();
 
@@ -14,21 +14,21 @@ const cli = createTestCli();
  * node_modules/.bin above the fixture before Node's own directory, which
  * holds the real corepack, so both stubs sit in the parent's.
  */
-function makeStubbedFixture(name: string, files: Record<string, string>, pnpmExitCode = 0): { dir: string; cleanup: () => void } {
-  const root = mkdtempSync(path.join(tmpdir(), "rr-stub-pm-"));
-  const bin = path.join(root, "node_modules", ".bin");
+function makeStubbedFixture(name: string, files: FixtureFiles, pnpmExitCode = 0): Fixture {
+  const parent = mkdtempSync(path.join(tmpdir(), "rr-stub-pm-"));
+  const bin = path.join(parent, "node_modules", ".bin");
   mkdirSync(bin, { recursive: true });
   writeFileSync(path.join(bin, "pnpm"), `#!/bin/sh\nexit ${pnpmExitCode}\n`, { mode: 0o755 });
   writeFileSync(path.join(bin, "corepack"), "#!/bin/sh\nexit 1\n", { mode: 0o755 });
-  const { dir } = makeFixture(name, files, { root });
-  return { dir, cleanup: () => rmSync(root, { recursive: true, force: true }) };
+  const { dir } = makeFixture(name, files, { parent });
+  return { dir, cleanup: () => rmSync(parent, { recursive: true, force: true }) };
 }
 
 const pnpmPkg = (extra: Record<string, unknown> = {}) =>
   `${JSON.stringify({ name: "rr-test-fixture", version: "0.0.0", private: true, ...extra, packageManager: "pnpm@10.30.3" }, null, 2)}\n`;
 
 describe("rr plugins", () => {
-  let fixture: { dir: string; cleanup: () => void };
+  let fixture: Fixture;
 
   afterEach(() => fixture?.cleanup());
 
