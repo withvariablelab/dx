@@ -1,35 +1,39 @@
 import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { dirnameOf } from "@variablelab/clibuddy";
 import { afterEach, describe, expect, test } from "vitest";
 import { type Fixture, type FixtureFiles, makeFixture } from "#test/helpers.ts";
 
 const PKG_DIR = path.resolve(dirnameOf(import.meta), "../..");
+const REPO_DIR = path.resolve(PKG_DIR, "../..");
+const LEFTHOOK = path.join(REPO_DIR, "node_modules/.bin/lefthook");
 const BASE = "node_modules/@rrlab/cli/lefthook/base.yml";
 const TURBOREPO = "node_modules/@rrlab/cli/lefthook/turborepo.yml";
-const GITLEAKS = { name: "gitleaks", run: "mise exec -- gitleaks git --pre-commit --staged --redact" };
 
 type Job = { name?: string; run?: string };
 type LefthookConfig = Partial<Record<"pre-commit" | "pre-push", { jobs: Job[] }>>;
 
 const yaml = (...lines: string[]) => `${lines.join("\n")}\n`;
 const extendsOf = (...files: string[]) => yaml("extends:", ...files.map((file) => `  - ${file}`));
-const ownGitleaks = yaml("pre-commit:", "  jobs:", `    - name: ${GITLEAKS.name}`, `      run: ${GITLEAKS.run}`);
 
 describe("the lefthook configs in @rrlab/cli/lefthook", () => {
   let fixture: Fixture | undefined;
 
   afterEach(() => fixture?.cleanup());
 
+  function git(...args: string[]) {
+    const r = spawnSync("git", args, { cwd: fixture?.dir, encoding: "utf8" });
+    expect(r.status, r.stderr).toBe(0);
+  }
+
+  const lefthook = (...args: string[]) => spawnSync(LEFTHOOK, args, { cwd: fixture?.dir, encoding: "utf8" });
+
   function dump(files: FixtureFiles, ...args: string[]): string {
     fixture = makeFixture("lefthook", files);
-    const init = spawnSync("git", ["init", "-q"], { cwd: fixture.dir, encoding: "utf8" });
-    expect(init.status, init.stderr).toBe(0);
+    git("init", "-q");
 
-    const r = spawnSync(path.join(fixture.dir, "node_modules/.bin/lefthook"), ["dump", ...args], {
-      cwd: fixture.dir,
-      encoding: "utf8",
-    });
+    const r = lefthook("dump", ...args);
     expect(r.status, r.stderr).toBe(0);
     return r.stdout;
   }
@@ -86,17 +90,19 @@ describe("the lefthook configs in @rrlab/cli/lefthook", () => {
     expect(config["pre-push"]?.jobs).toEqual([{ name: "test", run: "pnpm rr test run" }]);
   });
 
-  test("a repo's own gitleaks job with the same command merges with the shared one", () => {
-    const config = dumpJson({ "lefthook.yml": `${extendsOf(BASE)}\n${ownGitleaks}` });
+  test.each([
+    { node_modules: "without @rrlab/cli", linkNodeModules: false, status: 1 },
+    { node_modules: "with @rrlab/cli", linkNodeModules: true, status: 0 },
+  ])("dx's shared-hooks job exits $status in a repo $node_modules", ({ linkNodeModules, status }) => {
+    const files = { "lefthook.yml": readFileSync(path.join(REPO_DIR, "lefthook.yml"), "utf8"), "a.txt": "a\n" };
+    fixture = makeFixture("lefthook", files, { linkNodeModules });
+    git("init", "-q");
+    git("add", "a.txt");
 
-    expect(config["pre-commit"]?.jobs.filter((job) => job.name === GITLEAKS.name)).toEqual([GITLEAKS]);
-  });
+    const r = lefthook("run", "pre-commit", "--job", "shared-hooks", "--no-auto-install", "--colors", "off");
 
-  test("a repo's own gitleaks job still runs when the shared file is missing", () => {
-    const missing = "node_modules/@rrlab/cli/lefthook/missing.yml";
-    const config = dumpJson({ "lefthook.yml": `${extendsOf(missing)}\n${ownGitleaks}` });
-
-    expect(config["pre-commit"]?.jobs).toEqual([GITLEAKS]);
+    expect(r.status, r.stdout).toBe(status);
+    expect(r.stdout.includes("run pnpm install")).toBe(status === 1);
   });
 
   test("a repo overrides a shared job from a file it lists later in extends", () => {
