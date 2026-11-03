@@ -48,5 +48,27 @@
     "parser": {
       "tailwindDirectives": true
     }
-  }
+  },
+  "markdown": {
+    "parser": {
+      "frontmatter": true
+    },
+    "formatter": {
+      "formatEmbeds": false
+    }
+  },
+  "overrides": [
+    {
+      "includes": [".mise/locks/**", ".changeset/*.md", "**/CHANGELOG.md", ".github/workflows/pullfrog.yml"],
+      "formatter": {
+        "enabled": false
+      },
+      "linter": {
+        "enabled": false
+      },
+      "assist": {
+        "enabled": false
+      }
+    }
+  ]
 }
