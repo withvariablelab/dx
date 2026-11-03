@@ -1,7 +1,7 @@
 # 019: How do the repos that use `rr` share their git hooks?
 
 - **Date**: 2026-11-03
-- **Status**: Applied
+- **Status**: Pending human review
 - **Files affected**: `run-run/cli/lefthook/base.yml`, `run-run/cli/lefthook/turborepo.yml`, `run-run/cli/package.json`, `run-run/cli/test/integration/lefthook.test.ts`, `lefthook.yml`, `run-run/CLAUDE.md`
 
 ## Context
@@ -34,6 +34,6 @@ dx's own `lefthook.yml` is exactly that. Neither file extends the other: lefthoo
 ## Notes for human review
 
 - lefthook treats each `extends` entry as a glob, so a missing file matches nothing. `lefthook validate` says "All good", and no warning shows. When `node_modules/@rrlab/cli` is missing, or older than the version that ships these files, the commit goes through with none of the shared jobs, a staged secret included. `lefthook.test.ts` pins the files' paths and checks that the package ships them. Renaming or moving one is a breaking change for `@rrlab/cli`. CI's gitleaks scan still catches a secret the hook missed.
-- A repo can also name `gitleaks` in its own `lefthook.yml`, with the same command. It then merges with the shared job, and it still runs when the shared file is missing (`lefthook.test.ts`).
+- Open: should each repo also name `gitleaks` in its own `lefthook.yml`, with the same command, so a missing shared file can't silence the secret scan? Such a job merges with the shared one, and it still runs when the shared file is missing (`lefthook.test.ts`). A job with a different `run` loses to the shared one without a warning. Until that is decided, dx's `lefthook.yml` holds only the two `extends` lines.
 - To change what a shared job runs, a repo lists its own file after the shared ones in `extends`. Setting `skip: true` on the job works from its own `lefthook.yml`.
 - `lefthook/turborepo.yml` at dx's root stays as it is for the repos that still fetch it remotely.
