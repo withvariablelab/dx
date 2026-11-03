@@ -24,6 +24,7 @@ afterEach(async () => {
 async function scaffoldedPackage(source?: string): Promise<string> {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "rr-tsdown-plugin-pack-"));
   tmpDirs.push(dir);
+  await fs.writeFile(path.join(dir, "tsconfig.json"), "{}\n");
   const result = await install({
     shell: {} as ShellService,
     logger: {} as InstallContext["logger"],
@@ -57,7 +58,7 @@ describe("TsdownService.pack() on the lib scaffold", () => {
   });
 
   it(
-    "writes the declarations in a package without a tsconfig.json",
+    "writes the declarations in a package with a tsconfig.json",
     async () => {
       const dir = await scaffoldedPackage("export function answer(): number {\n  return 42;\n}\n");
       const report = await service(dir).pack();

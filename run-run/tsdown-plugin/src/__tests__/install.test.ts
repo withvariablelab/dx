@@ -56,6 +56,11 @@ function stubPrompts(overrides: Partial<ClackPrompts> = {}): ClackPrompts {
 }
 
 describe("@rrlab/tsdown-plugin install()", () => {
+  // The lib build needs one; the "tsconfig.json" cases below remove it.
+  beforeEach(async () => {
+    await fs.writeFile(path.join(tmpDir, "tsconfig.json"), "{}\n");
+  });
+
   describe("non-interactive (--yes / nonInteractive)", () => {
     it("creates tsdown.config.ts with the default preset (lib) when no file exists", async () => {
       const result = await install(installCtx());
@@ -254,6 +259,38 @@ describe("@rrlab/tsdown-plugin install()", () => {
       // A peer isn't installed locally, and tsdown needs typescript installed to write declarations.
       const result = await install(installCtx({ appPkg: appPkg({ peerDependencies: { typescript: ">=5.0.0" } }) }));
       expect(result.devDependencies?.typescript).toBe(TOOL_VERSIONS.typescript.install);
+    });
+  });
+
+  describe("tsconfig.json (tsdown writes TypeScript 7 declarations only from one)", () => {
+    const interactive = { force: false, yes: false, nonInteractive: false };
+
+    it("refuses the lib build when there is none in the package or a folder above it", async () => {
+      await fs.rm(path.join(tmpDir, "tsconfig.json"));
+      const result = install(installCtx());
+      await expect(result).rejects.toThrow(`which need a tsconfig.json, and there is none in ${tmpDir} or a folder`);
+      await expect(result).rejects.toThrow("Run `rr plugins add ts`, which writes one");
+    });
+
+    it("takes the one in a folder above the package, as tsdown does", async () => {
+      const dirPath = path.join(tmpDir, "packages/lib");
+      await fs.mkdir(dirPath, { recursive: true });
+      const result = await install(installCtx({ appPkg: { dirPath, packageJson: {} } as Pkg }));
+      expect(result.files?.[0]?.kind).toBe("create");
+    });
+
+    it("doesn't need one for the bin build, which writes no declarations", async () => {
+      await fs.rm(path.join(tmpDir, "tsconfig.json"));
+      const select = vi.fn(async () => "bin" as unknown) as unknown as ClackPrompts["select"];
+      const result = await install(installCtx({ flags: interactive, prompts: stubPrompts({ select }) }));
+      expect(result.files?.[0]?.kind).toBe("create");
+    });
+
+    it("doesn't check when the package keeps its own tsdown config", async () => {
+      await fs.rm(path.join(tmpDir, "tsconfig.json"));
+      await fs.writeFile(path.join(tmpDir, "tsdown.config.ts"), "// custom\n");
+      const result = await install(installCtx());
+      expect(result.files).toBeUndefined();
     });
   });
 
