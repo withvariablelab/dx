@@ -27,7 +27,7 @@ Then create a `biome.json`:
 }
 ```
 
-It needs Biome 2 or later: the preset's `$schema` URL is tied to a Biome major, and the rule set changes between majors.
+It needs Biome 2.3 or later: the preset sets `css.parser.tailwindDirectives`, which Biome 2.3 added, and an older Biome stops on a key it doesn't know.
 
 ## Configuration
 
