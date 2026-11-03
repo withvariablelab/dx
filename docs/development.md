@@ -23,7 +23,7 @@ mise install
 pnpm install
 ```
 
-`pnpm install` also installs the git hooks, through lefthook.
+`pnpm install` also installs the git hooks: lefthook's postinstall writes them. With `CI` set, that postinstall skips them, so after a `CI=1 pnpm install` run `pnpm lefthook install` to add them.
 
 The published packages declare `engines.node` as `>=22.18.0`, except `@rrlab/biome-config` and `@rrlab/ts-config`, which hold only JSON presets and declare none. `mise.floor.toml` pins that floor, and `MISE_ENV=floor` runs the repo on it, as CI does:
 
@@ -52,7 +52,7 @@ In the repo, `pnpm rr` and `pnpm vland`, or `rr` and `vland` with mise, run each
 ## CI
 
 - **On each pull request to `main`:** CI runs `pnpm install --frozen-lockfile`, `pnpm rr check`, `pnpm test` and `pnpm build`, once on the Node floor in `mise.floor.toml` and once on the version in `mise.toml`. The required `Test` check passes when both do. Workflow audit runs [zizmor](https://docs.zizmor.sh) on every workflow in the repo, including those the vland templates generate.
-- **Git hooks** ([lefthook](https://lefthook.dev), in `lefthook/turborepo.yml`): on commit, `rr jscheck --fix-staged` on the staged files and, when TypeScript changed, `tscheck` on the changed packages and their dependents; on push, the tests of the affected packages.
+- **Git hooks** ([lefthook](https://lefthook.dev), in `lefthook.yml`): on commit, in parallel, `rr jsc --fix-staged` on the staged files, `rr tsc` on the whole repo when a TypeScript file or a tsconfig changed, and gitleaks on the staged changes; on push, the tests of the affected packages. `lefthook/turborepo.yml` is not dx's: it holds the hooks that other repos extend.
 - **Every Monday:** `pnpm audit` on the lockfile, which keeps an issue labeled `dependency-audit` open while it finds known vulnerabilities (Dependency audit).
 
 ## Preview releases
