@@ -75,9 +75,18 @@ A Turborepo monorepo's `lefthook.yml`:
 extends:
   - node_modules/@rrlab/cli/lefthook/base.yml
   - node_modules/@rrlab/cli/lefthook/turborepo.yml
+
+pre-commit:
+  jobs:
+    - name: shared-hooks
+      run: |
+        if [ ! -f node_modules/@rrlab/cli/lefthook/base.yml ]; then
+          echo "@rrlab/cli's git hooks are missing from node_modules: run pnpm install, then commit again."
+          exit 1
+        fi
 ```
 
-A repo without Turborepo extends `base.yml` and writes its own `pre-push` jobs.
+A repo without Turborepo extends `base.yml`, keeps the `shared-hooks` job, and writes its own `pre-push` jobs.
 
 The configs run through pnpm and expect:
 
@@ -87,7 +96,7 @@ The configs run through pnpm and expect:
 
 lefthook merges jobs that share a name, and the extended file wins. So your `lefthook.yml` can add jobs, or set `skip: true` on a shared job. To change what a shared job runs, put your version in a file listed after it in `extends`.
 
-lefthook skips a file in `extends` that doesn't exist, without a warning. So no shared job runs when `node_modules/@rrlab/cli` is missing, or older than 1.7.0, the first version that ships these files. For the same reason, the two paths and the job names (`jsc`, `tsc`, `gitleaks`, `test`) are part of `@rrlab/cli`'s interface. Renaming one is a breaking change.
+lefthook skips a file in `extends` that doesn't exist, without a warning. So no shared job runs when `node_modules/@rrlab/cli` is missing, or older than 1.7.0, the first version that ships these files. For the same reason, the two paths and the job names (`jsc`, `tsc`, `gitleaks`, `test`) are part of `@rrlab/cli`'s interface: renaming one is a breaking change. The `shared-hooks` job in your own `lefthook.yml` turns that silence into a failed commit that says to run `pnpm install`.
 
 ## Shell completion
 
