@@ -37,7 +37,7 @@ Don't write how many official plugins there are anywhere — say "every official
 
 ## The kernel is tool-agnostic — non-negotiable
 
-`@rrlab/cli` knows nothing about specific tools (biome, typescript, oxc, tsdown). It only ships **tool-shape-agnostic** things: the plugin contract (`Plugin`, `PluginServices`), capability interfaces (`Linter`, `Formatter`, `TypeChecker`, `Packer`, `StaticChecker`, `TestRunner`), the file-ops engine (`FileOp`, `JsonEdit`), `ToolService` as a base class, the command tree.
+`@rrlab/cli` knows nothing about specific tools (biome, typescript, oxc, tsdown). It only ships **tool-shape-agnostic** things: the plugin contract (`Plugin`, `PluginServices`), capability interfaces (`Linter`, `Formatter`, `TypeChecker`, `Packer`, `StaticChecker`, `TestRunner`), the file-ops engine (`FileOp`, `JsonEdit`), `ToolService` as a base class, the command tree, and the lefthook configs in `cli/lefthook/`. Those configs call `rr` and the repo setup they assume (pnpm, mise, gitleaks, Turborepo), never a plugin's tool directly (`decisions/019-shared-git-hooks.md`).
 
 **Each plugin owns its tool.** That includes:
 

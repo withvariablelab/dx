@@ -28,6 +28,7 @@
   "files": [
     "bin",
     "dist",
+    "lefthook",
     "src",
     "!src/**/__tests__",
     "!src/**/*.test.*",
