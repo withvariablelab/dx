@@ -24,8 +24,9 @@ export async function cleanAction({ options }: CleanActionConfig): Promise<void>
 
     logger.start("Clean started");
     // One match can sit inside another (node_modules/dep/dist): force makes a path already deleted a no-op.
+    // maxRetries keeps rimraf's retries of a file another process still holds (EBUSY, EPERM, ENOTEMPTY).
     for (const match of toDelete) {
-      await rm(path.resolve(cwd, match), { recursive: true, force: true });
+      await rm(path.resolve(cwd, match), { recursive: true, force: true, maxRetries: 10 });
     }
     logger.success("Clean completed");
   }
