@@ -1,5 +1,11 @@
 # @rrlab/biome-config
 
+## 0.1.0
+
+### Minor Changes
+
+- [#300](https://github.com/withvariablelab/dx/pull/300) [`cae66c7`](https://github.com/withvariablelab/dx/commit/cae66c78b15cd68bf70225bf3d9ee9e6ce367c7f) Thanks [@rqbazan](https://github.com/rqbazan)! - `@rrlab/biome-config` parses Markdown frontmatter, leaves the code blocks inside Markdown unformatted, and keeps Biome's formatter, linter and assist off `.mise/locks/`, `.changeset/*.md`, every `CHANGELOG.md` and `.github/workflows/pullfrog.yml`, so it needs Biome 2.6 or later.
+
 ## 0.0.7
 
 ### Patch Changes

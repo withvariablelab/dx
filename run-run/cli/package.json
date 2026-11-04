@@ -1,6 +1,6 @@
 {
   "name": "@rrlab/cli",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "One way to run the scripts in a repo.",
   "homepage": "https://github.com/withvariablelab/dx/tree/main/run-run/cli#readme",
   "bugs": {
