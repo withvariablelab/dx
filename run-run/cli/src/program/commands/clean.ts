@@ -7,7 +7,7 @@ type Options = {
   dryRun?: boolean;
 };
 
-const rimrafColor = colorize("#7C7270");
+const globColor = colorize("#7C7270");
 
 export function createCleanCommand() {
   return createCommand("clean")
@@ -18,5 +18,5 @@ export function createCleanCommand() {
     .action((options: Options) =>
       cleanAction({ options: { onlyDist: Boolean(options.onlyDist), dryRun: Boolean(options.dryRun) } }),
     )
-    .addHelpText("after", `\nUnder the hood, this command uses ${rimrafColor("rimraf")} to delete dirty folders or files.`);
+    .addHelpText("after", `\nUnder the hood, this command uses ${globColor("glob")} to find dirty folders or files.`);
 }

@@ -60,6 +60,19 @@ describe("rr clean", () => {
     expect(remaining()).toEqual(FILES);
   });
 
+  test("deletes exactly what --dry-run lists, nested matches included", () => {
+    const dry = cli("clean --dry-run", { cwd: fixture.dir });
+    expect(dry.status).toBe(0);
+    const listed = [...stripVTControlCharacters(dry.stdout + dry.stderr).matchAll(/'([^']+)'/g)].map((m) => m[1]);
+    expect(listed).toEqual(expect.arrayContaining(["node_modules", "node_modules/dep/dist"]));
+
+    const r = cli("clean", { cwd: fixture.dir });
+    expect(r.status, r.stdout + r.stderr).toBe(0);
+
+    const underListed = (file: string) => listed.some((match) => file === match || file.startsWith(`${match}/`));
+    expect(remaining()).toEqual(FILES.filter((file) => !underListed(file)));
+  });
+
   test("rejects an argument, and deletes nothing", () => {
     const r = cli("clean dist", { cwd: fixture.dir });
 

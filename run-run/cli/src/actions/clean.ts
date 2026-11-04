@@ -1,6 +1,7 @@
+import { rm } from "node:fs/promises";
+import path from "node:path";
 import { cwd } from "@variablelab/clibuddy";
 import { type GlobOptionsWithFileTypesFalse, glob } from "glob";
-import { rimraf } from "rimraf";
 import { logger } from "#src/services/logger.ts";
 
 export type CleanOptions = {
@@ -22,7 +23,11 @@ export async function cleanAction({ options }: CleanActionConfig): Promise<void>
     }
 
     logger.start("Clean started");
-    await rimraf(toDelete);
+    // One match can sit inside another (node_modules/dep/dist): force makes a path already deleted a no-op.
+    // maxRetries keeps rimraf's retries of a file another process still holds (EBUSY, EPERM, ENOTEMPTY).
+    for (const match of toDelete) {
+      await rm(path.resolve(cwd, match), { recursive: true, force: true, maxRetries: 10 });
+    }
     logger.success("Clean completed");
   }
 
