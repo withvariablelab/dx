@@ -1,5 +1,13 @@
 # @rrlab/cli
 
+## 1.7.1
+
+### Patch Changes
+
+- [#301](https://github.com/withvariablelab/dx/pull/301) [`d116b54`](https://github.com/withvariablelab/dx/commit/d116b5455133b0f40534f816aba1a4da62783cf4) Thanks [@rqbazan](https://github.com/rqbazan)! - `rr clean` deletes what it finds with Node's `fs.rm` instead of rimraf, which takes rimraf's glob 13 and minimatch 10, and their security advisories, out of `@rrlab/cli`'s dependencies.
+
+- [#298](https://github.com/withvariablelab/dx/pull/298) [`1880a8f`](https://github.com/withvariablelab/dx/commit/1880a8f9abf7b3ab2f643a00e59cbbea45556385) Thanks [@rqbazan](https://github.com/rqbazan)! - The README's Git hooks section shows how a repo skips a shared job: `skip: true` beside a `run` line, since `lefthook validate` refuses a job without one.
+
 ## 1.7.0
 
 ### Minor Changes

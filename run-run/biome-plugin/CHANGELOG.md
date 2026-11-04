@@ -1,5 +1,11 @@
 # @rrlab/biome-plugin
 
+## 1.3.0
+
+### Minor Changes
+
+- [#300](https://github.com/withvariablelab/dx/pull/300) [`cae66c7`](https://github.com/withvariablelab/dx/commit/cae66c78b15cd68bf70225bf3d9ee9e6ce367c7f) Thanks [@rqbazan](https://github.com/rqbazan)! - `@rrlab/biome-plugin`'s Biome peer starts at 2.6, the first Biome that loads `@rrlab/biome-config`'s Markdown settings.
+
 ## 1.2.3
 
 ### Patch Changes
