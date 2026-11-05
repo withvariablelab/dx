@@ -157,12 +157,13 @@ jobs:
     name: Publish preview
     runs-on: ubuntu-latest
     needs: test
-    # One publish per commit. A feat/fix branch publishes on opened, synchronize and reopened. Any other branch publishes
-    # from the label run that adds `preview` (a PR opened with it too), then on synchronize and reopened while it has it.
+    # A feat/fix branch publishes on opened, synchronize and reopened. Any other branch publishes from the label run
+    # that adds `preview` (a PR opened with it gets one too), then on synchronize and reopened while it has it.
     if: >-
       ${{ (github.event.action != 'labeled'
         && (startsWith(github.head_ref, 'feat') || startsWith(github.head_ref, 'fix')))
-      || (github.event.action == 'labeled' && github.event.label.name == 'preview'
+      || (github.event.action == 'labeled'
+        && github.event.label.name == 'preview'
         && !startsWith(github.head_ref, 'feat') && !startsWith(github.head_ref, 'fix'))
       || ((github.event.action == 'synchronize' || github.event.action == 'reopened')
         && contains(github.event.pull_request.labels.*.name, 'preview')) }}
