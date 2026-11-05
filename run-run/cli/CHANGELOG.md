@@ -1,5 +1,11 @@
 # @rrlab/cli
 
+## 1.7.2
+
+### Patch Changes
+
+- [#303](https://github.com/withvariablelab/dx/pull/303) [`172c5af`](https://github.com/withvariablelab/dx/commit/172c5afd6e91ea275e92c7de044df6f46c0dbea3) Thanks [@rqbazan](https://github.com/rqbazan)! - The `gitleaks` job of `lefthook/base.yml` runs `mise exec gitleaks --` instead of `mise exec --`, so mise installs only the repo's pinned gitleaks when it is missing, and a tool of the global mise config that fails to install no longer blocks every commit.
+
 ## 1.7.1
 
 ### Patch Changes
