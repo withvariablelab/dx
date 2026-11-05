@@ -17,6 +17,16 @@ type LefthookConfig = Partial<Record<"pre-commit" | "pre-push", { jobs: Job[] }>
 const yaml = (...lines: string[]) => `${lines.join("\n")}\n`;
 const extendsOf = (...files: string[]) => yaml("extends:", ...files.map((file) => `  - ${file}`));
 
+// The gitleaks that dx pins, which mise has installed on a dev machine and in CI.
+function gitleaksPin(): string {
+  const pin = /^gitleaks = .+$/m.exec(readFileSync(path.join(REPO_DIR, "mise.toml"), "utf8"))?.[0];
+  if (!pin) throw new Error("dx's mise.toml pins no gitleaks.");
+  return pin;
+}
+
+// Built at runtime, so neither dx's own gitleaks job nor CI's scan finds a token in this file.
+const FAKE_TOKEN = ["ghp", "aB3dE5gH7jK9".repeat(3)].join("_");
+
 describe("the lefthook configs in @rrlab/cli/lefthook", () => {
   let fixture: Fixture | undefined;
 
@@ -27,13 +37,17 @@ describe("the lefthook configs in @rrlab/cli/lefthook", () => {
     expect(r.status, r.stderr).toBe(0);
   }
 
-  const lefthook = (...args: string[]) => spawnSync(LEFTHOOK, args, { cwd: fixture?.dir, encoding: "utf8" });
+  const lefthook = (args: string[], env: NodeJS.ProcessEnv = {}) =>
+    spawnSync(LEFTHOOK, args, { cwd: fixture?.dir, encoding: "utf8", env: { ...process.env, ...env } });
+
+  const runJob = (job: string, env?: NodeJS.ProcessEnv) =>
+    lefthook(["run", "pre-commit", "--job", job, "--no-auto-install", "--colors", "off"], env);
 
   function dump(files: FixtureFiles, ...args: string[]): string {
     fixture = makeFixture("lefthook", files);
     git("init", "-q");
 
-    const r = lefthook("dump", ...args);
+    const r = lefthook(["dump", ...args]);
     expect(r.status, r.stderr).toBe(0);
     return r.stdout;
   }
@@ -43,11 +57,31 @@ describe("the lefthook configs in @rrlab/cli/lefthook", () => {
   function validate(files: FixtureFiles) {
     fixture = makeFixture("lefthook", files);
     git("init", "-q");
-    return lefthook("validate");
+    return lefthook(["validate"]);
   }
 
   const skipTsc = (...lines: string[]) =>
     `${extendsOf(BASE)}\n${yaml("pre-commit:", "  jobs:", "    - name: tsc", ...lines, "      skip: true")}`;
+
+  // mise runs offline, with a global config of the fixture's own instead of the machine's: its node release doesn't
+  // exist, so it can't install.
+  function runGitleaks(content: string, { gitleaksInstalled = true } = {}) {
+    fixture = makeFixture("lefthook", {
+      "lefthook.yml": extendsOf(BASE),
+      "mise.toml": `[tools]\n${gitleaksPin()}\n`,
+      "global.toml": `[tools]\nnode = "0.0.0"\n`,
+      "a.txt": `${content}\n`,
+    });
+    git("init", "-q");
+    git("add", "a.txt");
+
+    const { dir } = fixture;
+    return runJob("gitleaks", {
+      MISE_GLOBAL_CONFIG_FILE: path.join(dir, "global.toml"),
+      MISE_OFFLINE: "1",
+      ...(gitleaksInstalled ? {} : { MISE_DATA_DIR: path.join(dir, "data"), MISE_CACHE_DIR: path.join(dir, "cache") }),
+    });
+  }
 
   test("a turborepo that extends base.yml and turborepo.yml gets the pre-commit jobs and the affected tests", () => {
     expect(dump({ "lefthook.yml": extendsOf(BASE, TURBOREPO) })).toMatchInlineSnapshot(`
@@ -66,7 +100,7 @@ describe("the lefthook configs in @rrlab/cli/lefthook", () => {
               - '*.{ts,tsx,mts,cts}'
               - '*tsconfig*.json'
           - name: gitleaks
-            run: mise exec -- gitleaks git --pre-commit --staged --redact
+            run: mise exec gitleaks -- gitleaks git --pre-commit --staged --redact
       pre-push:
         jobs:
           - name: test
@@ -108,10 +142,27 @@ describe("the lefthook configs in @rrlab/cli/lefthook", () => {
     git("init", "-q");
     git("add", "a.txt");
 
-    const r = lefthook("run", "pre-commit", "--job", "shared-hooks", "--no-auto-install", "--colors", "off");
+    const r = runJob("shared-hooks");
 
     expect(r.status, r.stdout).toBe(status);
     expect(r.stdout.includes("run pnpm install")).toBe(status === 1);
+  });
+
+  test.each([
+    { staged: "a clean change", content: "a", status: 0 },
+    { staged: "a fake token", content: FAKE_TOKEN, status: 1 },
+  ])("the gitleaks job exits $status on $staged when a global mise tool fails to install", ({ content, status }) => {
+    const r = runGitleaks(content);
+
+    expect(r.status, r.stdout + r.stderr).toBe(status);
+    expect(r.stdout.includes("leaks found: 1")).toBe(status === 1);
+  });
+
+  test("the gitleaks job fails when the repo's pinned gitleaks isn't installed and mise can't install it", () => {
+    const r = runGitleaks("a", { gitleaksInstalled: false });
+
+    expect(r.status, r.stdout + r.stderr).not.toBe(0);
+    expect(r.stdout + r.stderr).toMatch(/Failed to install .*gitleaks/);
   });
 
   test("a repo overrides a shared job from a file it lists later in extends", () => {
@@ -131,7 +182,7 @@ describe("the lefthook configs in @rrlab/cli/lefthook", () => {
     const r = validate({ "lefthook.yml": skipTsc("      run: echo not-the-shared-run") });
     expect(r.status, r.stdout + r.stderr).toBe(0);
 
-    const config = JSON.parse(lefthook("dump", "--format", "json").stdout) as LefthookConfig;
+    const config = JSON.parse(lefthook(["dump", "--format", "json"]).stdout) as LefthookConfig;
     expect(config["pre-commit"]?.jobs.find((job) => job.name === "tsc")).toMatchObject({
       run: "pnpm rr tsc",
       skip: true,
