@@ -11,5 +11,7 @@ pre-commit:
         - "*.{ts,tsx,mts,cts}"
         - "*tsconfig*.json"
 
+    # Naming gitleaks makes mise install only it when it's missing. A bare `mise exec --` first installs every missing
+    # tool of the active toolset, those of the global config too, and one that fails to install fails every commit.
     - name: gitleaks
-      run: mise exec -- gitleaks git --pre-commit --staged --redact
+      run: mise exec gitleaks -- gitleaks git --pre-commit --staged --redact
