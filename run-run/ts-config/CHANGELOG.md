@@ -1,5 +1,11 @@
 # @rrlab/ts-config
 
+## 0.0.7
+
+### Patch Changes
+
+- [#308](https://github.com/withvariablelab/dx/pull/308) [`3531669`](https://github.com/withvariablelab/dx/commit/3531669254d0550056b6263d64c5fd462b51b1d9) Thanks [@rqbazan](https://github.com/rqbazan)! - `@rrlab/ts-config` bundles `@total-typescript/tsconfig`, the base its presets extend, so Vite 8 run from plain `node` finds that base through pnpm's symlink instead of failing every transform with `Failed to load tsconfig '@total-typescript/tsconfig/bundler/dom'`.
+
 ## 0.0.6
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@rrlab/ts-config",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Shared TypeScript presets used by @rrlab/ts-plugin.",
   "homepage": "https://github.com/withvariablelab/dx/tree/main/run-run/ts-config#readme",
   "bugs": {
