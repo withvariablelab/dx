@@ -1,5 +1,7 @@
 import { defineConfig, type UserConfig } from "tsdown";
 
+export type { UserConfig } from "tsdown";
+
 export function defineBinConfig(options: UserConfig = {}) {
   return defineConfig({
     entry: ["src/run.ts"],
