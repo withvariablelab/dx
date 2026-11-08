@@ -41,9 +41,16 @@
   },
   "scripts": {
     "build": "tsdown",
+    "test": "vitest run",
     "prepublishOnly": "pnpm build"
   },
   "peerDependencies": {
     "tsdown": ">=0.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

@@ -25,7 +25,7 @@ It needs tsdown 0.22 or later and Node 22.18 or later.
 - `defineLibConfig()`: a library. ESM with `.d.ts` declarations, from the entry `src/index.ts`.
 - `defineBinConfig()`: a CLI or Node binary. ESM for the `node` platform, from the entry `src/run.ts`.
 
-Each helper wraps tsdown's `defineConfig()` and takes tsdown's `UserConfig`. Your options are spread over the defaults, so they win.
+Each helper wraps tsdown's `defineConfig()` and takes tsdown's `UserConfig`, which this package also exports. Your options are spread over the defaults, so they win.
 
 ## Usage
 
