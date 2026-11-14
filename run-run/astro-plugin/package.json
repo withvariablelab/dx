@@ -54,7 +54,7 @@
     "@rrlab/cli": "workspace:*",
     "@rrlab/tsdown-config": "workspace:^",
     "@types/semver": "catalog:",
-    "astro": "7.4.4",
+    "astro": "7.4.7",
     "semver": "catalog:",
     "typescript": "6.0.3"
   }
